@@ -44,6 +44,7 @@ public class GameController {
         // case work
 
         /*
+
         // fix this case.. the ace should be a 1 but i dont know why its not
         Card[] cards = {new Card(4, "4", new Suit("Spade")),new Ace(new Suit("Heart")),
         new FaceCard("J", new Suit("Diamond")),
@@ -94,7 +95,7 @@ public class GameController {
         boolean insuranceBought = game.buyInsurance();
         getInsuranceButton.setDisable(true); // cant buy insurance again...
         if (insuranceBought){
-
+            System.out.println("tried to buy insurance but like this doesnt work yet");
         }
     }
 
