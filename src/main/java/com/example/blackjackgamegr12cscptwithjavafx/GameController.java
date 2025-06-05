@@ -43,6 +43,7 @@ public class GameController {
 
         // case work
 
+        /*
         // fix this case.. the ace should be a 1 but i dont know why its not
         Card[] cards = {new Card(4, "4", new Suit("Spade")),new Ace(new Suit("Heart")),
         new FaceCard("J", new Suit("Diamond")),
@@ -53,6 +54,7 @@ public class GameController {
         for (int i = cards.length -1; i >= 0; i--) {
             game.getDeck().addCard(cards[i]);
         }
+         */
     }
 
     @FXML
