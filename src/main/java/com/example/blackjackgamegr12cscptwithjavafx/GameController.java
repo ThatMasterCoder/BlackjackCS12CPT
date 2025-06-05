@@ -1,0 +1,247 @@
+package com.example.blackjackgamegr12cscptwithjavafx;
+
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+
+import java.util.ArrayList;
+
+public class GameController {
+
+
+    public static int DEFAULT_BET = 100;
+    @FXML private ImageView table;
+    @FXML private Label messageLabel;
+    @FXML private Button revealDealerButton;
+    @FXML private HBox dealerCards;
+    @FXML private HBox playerCards;
+    @FXML private Button dealButton;
+    @FXML private Button hitButton;
+    @FXML private Button standButton;
+    @FXML private Button doubleButton;
+    @FXML private Button getInsuranceButton;
+    @FXML private Label dealerScoreLabel;
+    @FXML private Label playerScoreLabel;
+
+    private Game game;
+
+    @FXML
+    public void initialize() {
+        game = new Game();
+        game.getPlayer().resetHand();
+        game.getDealer().resetHand();
+
+        /* background cause java 17 is dumb */
+        Image background = new Image(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/BJ_TABLE.png").toExternalForm());
+        table.setImage(background);
+
+        updateUI();
+
+        // case work
+
+        // fix this case.. the ace should be a 1 but i dont know why its not
+        Card[] cards = {new Card(4, "4", new Suit("Spade")),new Ace(new Suit("Heart")),
+        new FaceCard("J", new Suit("Diamond")),
+        new Card(2, "2", new Suit("Heart")),
+        new Card(8, "8", new Suit("Spade")),
+        new FaceCard("K", new Suit("Diamond"))};
+
+        for (int i = cards.length -1; i >= 0; i--) {
+            game.getDeck().addCard(cards[i]);
+        }
+    }
+
+    @FXML
+    private void onDeal() {
+        if (game.startNewRound(DEFAULT_BET)){
+            System.out.println("New Round");
+            messageLabel.setText("Welcome to Blackjack!");
+            dealButton.setDisable(true);
+            hitButton.setDisable(false);
+            standButton.setDisable(false);
+            getInsuranceButton.setDisable(true);
+
+
+            doubleButton.setDisable(game.getPlayer().getMoney() < DEFAULT_BET);
+
+            revealDealerButton.setDisable(true);
+            updateUI();
+
+            if (game.getDealer().showsAce()){
+                messageLabel.setText("Insurance pays 2 to 1. Would you like insurance?");
+                getInsuranceButton.setDisable(false);
+
+            }
+
+            if (game.getPlayer().getHand().isBlackjack()) {
+                messageLabel.setText("Blackjack Won!");
+                handleBlackjack();
+            }
+        } else {
+            messageLabel.setText("Not enough money to bet!");
+            System.out.println("Broke, cant bet amount");
+        }
+    }
+
+    @FXML
+    private void onInsurance(){
+        boolean insuranceBought = game.buyInsurance();
+        getInsuranceButton.setDisable(true); // cant buy insurance again...
+        if (insuranceBought){
+
+        }
+    }
+
+    private void handleBlackjack() {
+        String outcome = game.getOutcome();
+        messageLabel.setText(outcome);
+        // todo: handle blackjack stuff money here
+        endRound();
+    }
+
+    @FXML
+    private void onHit() {
+        PlayerStatus status = game.playerHit();
+        getInsuranceButton.setDisable(true);
+        updateUI();
+
+        System.out.println(status);
+
+        switch (status){
+            case BUST:
+                messageLabel.setText("You Busted! You lose.");
+                endRound();
+                break;
+            case TWENTY_ONE:
+                messageLabel.setText("You have 21! ");
+                standButton.fire();
+                break;
+            case FIVE_CARDS:
+                messageLabel.setText("You have 5 cards! (Five-card Charlie)");
+                standButton.fire();
+                break;
+            default:
+                messageLabel.setText("Hit");
+                doubleButton.setDisable(true); // cant double after first two cards
+                break;
+        }
+    }
+
+    @FXML
+    private void onStand() {
+        messageLabel.setText("Dealer's turn... click to reveal cards.");
+        hitButton.setDisable(true);
+        standButton.setDisable(true);
+        doubleButton.setDisable(true);
+        revealDealerButton.setDisable(false);
+        updateUI();
+    }
+
+    @FXML
+    private void onDoubleDown() {
+        PlayerStatus status = game.doubleDown();
+        updateUI();
+        System.out.println("player doubles down");
+
+        if (status == PlayerStatus.BUST) {
+            messageLabel.setText("You Busted after doubling down! You lose.");
+            endRound();
+        } else {
+            messageLabel.setText("Doubled down! Dealer's turn... click to reveal cards.");
+            hitButton.setDisable(true);
+            standButton.setDisable(true);
+            doubleButton.setDisable(true);
+            revealDealerButton.setDisable(false); // Enable reveal button
+        }
+    }
+
+    private void endRound(){
+
+        System.out.println(game.getOutcome());
+        messageLabel.setText(game.getOutcome());
+        dealButton.setDisable(false);
+        hitButton.setDisable(true);
+        standButton.setDisable(true);
+        doubleButton.setDisable(true);
+
+        revealDealerButton.setDisable(true);
+        // Update money display!!
+        updateUI();
+    }
+
+    @FXML
+    private void onRevealDealerCard() {
+        Hand dealerHand  = game.getDealer().getHand();
+        if (dealerHand.getScore() < 17 || (dealerHand.getScore() == 17 && dealerHand.hasSoftAces())) {
+            dealerHand.addCard(game.getDeck().drawCard());
+        }
+
+        updateUI();
+
+        if (game.getDealer().getHand().getScore() >= 17) {
+            messageLabel.setText(game.getOutcome());
+            revealDealerButton.setDisable(true);
+            endRound();
+        }
+    }
+    private void updateUI() {
+        // Clear cards
+        playerCards.getChildren().clear();
+        dealerCards.getChildren().clear();
+
+        // Show player cards
+        for (Card card : game.getPlayer().getHand().getCards()) {
+            Label cardLabel = new Label(card.toString());
+            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white;");
+            playerCards.getChildren().add(cardLabel);
+        }
+
+        // Show dealer cards - handle empty hand case... just in case :)
+        boolean dealerRevealed = !(dealButton.isDisabled() && revealDealerButton.isDisabled()) || game.getPlayer().getHand().isBust();
+        ArrayList<Card> dealerCardsList = game.getDealer().getHand().getCards();
+
+        for (int i = 0; i < dealerCardsList.size(); i++) {
+            Card card = dealerCardsList.get(i);
+            boolean showCard = dealerRevealed || i == 0; // Show first card always, others only when revealed
+            Label cardLabel = new Label(showCard ? card.toString() : "[Hidden]");
+            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: " +
+                    (showCard ? "lightgray" : "white") + ";");
+            dealerCards.getChildren().add(cardLabel);
+        }
+
+        // Update score labels
+        int playerScore = game.getPlayer().getHand().getScore();
+        String playerScoreText = "Player: " + playerScore;
+        if (game.getPlayer().getHand().hasSoftAces() && playerScore <= 21) {
+            playerScoreText += " (Soft)";
+        }
+        playerScoreLabel.setText(playerScoreText);
+
+
+        String dealerScoreText;
+        if (dealerCardsList.isEmpty()) {
+            dealerScoreText = "Dealer: 0";
+        } else if ((dealButton.isDisabled() && revealDealerButton.isDisabled()) && !game.getPlayer().getHand().isBust()) {
+            // Before reveal, only show first card's value
+            System.out.println("Hide cards");
+            int visibleValue = dealerCardsList.get(0).getCardValue();
+            dealerScoreText = "Dealer: " + visibleValue + " + ?";
+        } else {
+            System.out.println("Show cards");
+            // After reveal or if player busted
+            int dealerScore = game.getDealer().getHand().getScore();
+            dealerScoreText = "Dealer: " + dealerScore;
+            if (game.getDealer().getHand().hasSoftAces() && dealerScore <= 21) {
+                dealerScoreText += " (Soft)";
+            }
+        }
+        dealerScoreLabel.setText(dealerScoreText);
+    }
+
+    // Add helper methods like updatePlayerUI(), updateDealerUI() later
+    // todo: Insurance, fix doubledown, splitting if time permits...
+}

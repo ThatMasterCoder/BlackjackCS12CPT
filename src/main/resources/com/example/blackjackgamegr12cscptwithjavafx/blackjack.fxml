@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.example.blackjackgamegr12cscptwithjavafx.GameController"
+style="-fx-background-color: black;">
+
+    <!-- Background Image -->
+    <ImageView fx:id="table" fitWidth="1000" fitHeight="500" preserveRatio="false"/>
+
+
+    <!-- everything else goes in here-->
+    <BorderPane>
+        <!-- Top: Message Display -->
+        <top>
+            <Label fx:id="messageLabel" text="Welcome to Blackjack!"
+                   style="-fx-font-size: 30px; -fx-text-fill: white;"
+                   BorderPane.alignment="CENTER"/>
+        </top>
+
+        <!-- Center: dealer, player cards -->
+        <center>
+            <VBox spacing="20" alignment="CENTER" BorderPane.alignment="CENTER">
+                <!-- dealer -->
+                <VBox spacing="5" alignment="CENTER" translateY="-50">
+                    <Label text="Dealer's Hand" style="-fx-font-weight: bold; -fx-text-fill: yellow"/>
+                    <HBox fx:id="dealerCards" spacing="10" alignment="CENTER"/>
+                    <Label fx:id="dealerScoreLabel" text="Dealer: ?" style="-fx-text-fill: yellow;"/>
+                </VBox>
+
+                <!-- player -->
+                <VBox spacing="10" alignment="CENTER" translateY="75">
+                    <Label text="Player's Hand" style="-fx-font-weight: bold; -fx-text-fill: yellow"/>
+                    <HBox fx:id="playerCards" spacing="10" alignment="CENTER"/>
+                    <Label fx:id="playerScoreLabel" text="Player: 0" style = "-fx-text-fill: yellow"/>
+                </VBox>
+            </VBox>
+        </center>
+
+        <!-- Bottom: Controls -->
+        <bottom>
+            <HBox spacing="15" alignment="CENTER">
+                <padding>
+                    <Insets top="10" bottom="10" left="20" right="20"/>
+                </padding>
+                <Button fx:id="dealButton" text="Deal" onAction="#onDeal" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="hitButton" text="Hit" onAction="#onHit" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="standButton" text="Stand" onAction="#onStand" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="doubleButton" text="Double Down" onAction="#onDoubleDown" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="getInsuranceButton" text = "Get Insurance" onAction="#onInsurance" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="revealDealerButton" text="Reveal Dealer Card" onAction="#onRevealDealerCard" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+            </HBox>
+        </bottom>
+    </BorderPane>
+
+</StackPane>
