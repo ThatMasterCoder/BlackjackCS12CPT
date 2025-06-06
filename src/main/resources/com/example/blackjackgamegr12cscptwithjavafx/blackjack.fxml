@@ -59,4 +59,13 @@ style="-fx-background-color: black;">
         </bottom>
     </BorderPane>
 
+    <!-- Bottom Right: Player Money and Bet Display -->
+    <AnchorPane pickOnBounds="false">
+        <VBox fx:id="moneyBetBox" spacing="8" alignment="CENTER_RIGHT" layoutX="800" layoutY="420"
+              styleClass="money-bet-box">
+            <Label fx:id="moneyLabel" text="Money: $0" styleClass="money-label"/>
+            <Label fx:id="betLabel" text="Bet: $0" styleClass="bet-label"/>
+        </VBox>
+    </AnchorPane>
+
 </StackPane>

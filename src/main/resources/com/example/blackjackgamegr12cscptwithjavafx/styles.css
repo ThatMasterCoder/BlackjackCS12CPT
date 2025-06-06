@@ -25,3 +25,17 @@ I hate css */
     -fx-prompt-text-fill: #aaaaaa;
     -fx-background-radius: 4;
 }
+
+/* Money and Bet Display Styles */
+.money-bet-box {
+    -fx-background-color: rgba(0,0,0,0.7);
+    -fx-background-radius: 10;
+    -fx-padding: 10 20 10 20;
+    -fx-spacing: 20;
+    -fx-alignment: center-right;
+}
+.money-label, .bet-label {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700; /* gold color */
+}

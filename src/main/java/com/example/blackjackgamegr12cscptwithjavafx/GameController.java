@@ -32,6 +32,8 @@ public class GameController {
     @FXML private Label dealerScoreLabel;
     @FXML private Label playerScoreLabel;
     @FXML private Button changeBetButton;
+    @FXML private Label moneyLabel;
+    @FXML private Label betLabel;
 
     private Game game;
 
@@ -40,6 +42,7 @@ public class GameController {
         game = new Game();
         game.getPlayer().resetHand();
         game.getDealer().resetHand();
+        betAmount = DEFAULT_BET;
 
         /* background cause java 17 is dumb */
         Image background = new Image(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/BJ_TABLE.png")).toExternalForm());
@@ -300,6 +303,10 @@ public class GameController {
             }
         }
         dealerScoreLabel.setText(dealerScoreText);
+
+        // Update money and bet labels
+        moneyLabel.setText("Money: $" + game.getPlayer().getMoney());
+        betLabel.setText("Bet: $" + betAmount);
     }
 
     // Add helper methods like updatePlayerUI(), updateDealerUI() later

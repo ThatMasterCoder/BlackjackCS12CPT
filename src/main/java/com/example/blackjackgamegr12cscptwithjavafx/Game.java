@@ -1,14 +1,34 @@
 package com.example.blackjackgamegr12cscptwithjavafx;
 
+/**
+ * The {@code Game} class simulates a simplified card game. It manages the core
+ * functionality of the game, including player and dealer interactions, betting,
+ * and determining outcomes. The game uses a deck of cards and involves separate
+ * roles for the Player and the Dealer.
+ */
 public class Game {
     private Deck deck = new Deck();
     private Player player = new Player();
     private Dealer dealer = new Dealer();
 
+    /**
+     * Represents the main class for managing the game.
+     * This constructor initializes a new game instance by generating and shuffling a fresh deck of cards.
+     * It prepares the deck to be used throughout the game.
+     */
     public Game(){
         deck.generateDeck();
     }
 
+    /**
+     * Initiates a new round in the game. The method ensures that the deck has
+     * enough cards, resets both the player's and dealer's hands, processes the
+     * player's bet, and deals two initial cards to both the player and the dealer.
+     *
+     * @param bet The amount to be bet by the player at the start of the round.
+     * @return {@code true} if the round was successfully started;
+     *         {@code false} if the player does not have sufficient funds to place the bet.
+     */
     public boolean startNewRound(int bet){
         if (deck.lowOnCards()){
             deck.generateDeck();
@@ -30,6 +50,21 @@ public class Game {
         return true;
     }
 
+    /**
+     * Processes the player's decision to hit in the game, adding a new card to the player's hand
+     * and checking the resulting state of the hand.
+     *</p>
+     * The method evaluates the player's hand after drawing a card, and can result in one of the following states:
+     * - {@link PlayerStatus#CONTINUE}: If the player's score is less than 21 and does not meet any special conditions.
+     * - {@link PlayerStatus#BUST}: If the player's hand exceeds a score of 21.
+     * - {@link PlayerStatus#TWENTY_ONE}: If the player's hand reaches exactly a score of 21.
+     * - {@link PlayerStatus#FIVE_CARDS}: If the player holds five cards without exceeding a score of 21.
+     * <p>
+     * If the player's hand exceeds 21 (bust), their current bet is lost.
+     * This method assumes the deck and player's hand are properly initialized.
+     *
+     * @return The current {@link PlayerStatus}, representing the state of the player's hand after hitting.
+     */
     public PlayerStatus playerHit(){
         System.out.println("Player hits");
         System.out.println("Player gets: " + player.getHand().addCard(deck.drawCard()));
@@ -50,21 +85,31 @@ public class Game {
     }
 
 
-    /*
-    might remove this later when done just in case
+
+
+
+    /**
+     * Attempts to purchase insurance for the player in the blackjack game.
+     * This method delegates the operation to the player's `buyInsurance` method.
+     * Insurance is a side bet option available in blackjack when the dealer's face-up card is an Ace,
+     * allowing the player to bet on the possibility of the dealer having a blackjack.
+     *
+     * @return {@code true} if the player successfully buys insurance; {@code false} otherwise.
      */
-
-    @Deprecated(forRemoval = true)
-    public void playerStand(){
-        System.out.println("player stands");
-        dealer.play(deck);
-    }
-
     public boolean buyInsurance(){
         System.out.println("Player tries to buy insurance");
         return player.buyInsurance();
     }
 
+    /**
+     * Allows the player to double down in the game.
+     * This method checks if the player can double down based on their current hand and available funds.
+     * If successful, it adds a new card to the player's hand and updates the game state accordingly.
+     *
+     * @return {@link PlayerStatus#DOUBLE_DOWN} if the player successfully doubles down,
+     *         {@link PlayerStatus#BUST} if the player's hand exceeds 21 after doubling down,
+     *         or {@link PlayerStatus#CONTINUE} if the player cannot double down.
+     */
     public PlayerStatus doubleDown(){
         System.out.println("player tries to double down");
         boolean canDouble = player.doubleDown();
@@ -85,6 +130,13 @@ public class Game {
 
     }
 
+    /**
+     * Determines the outcome of the game based on the player's and dealer's hands.
+     * This method evaluates the scores of both hands, checks for special conditions like blackjack,
+     * busts, and five-card hands, and updates the player's status accordingly.
+     *
+     * @return A string message indicating the outcome of the game, such as who wins or if there is a push.
+     */
     public String getOutcome(){
         int playerScore = player.getHand().getScore();
         int dealerScore = dealer.getHand().getScore();
