@@ -303,5 +303,6 @@ public class GameController {
     }
 
     // Add helper methods like updatePlayerUI(), updateDealerUI() later
-    // todo: Insurance, fix doubleDown, splitting if time permits...
+    // todo: Insurance, handleBlackjack, splitting if time permits...
+    // todo: also, if time permits, change cards to images
 }
