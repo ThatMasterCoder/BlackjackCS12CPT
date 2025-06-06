@@ -1,0 +1,27 @@
+/* styling the dialog pane.. */
+
+.dialog-pane {
+    -fx-background-color: #005b13;
+    -fx-font-family: "Verdana", sans-serif;
+    -fx-font-size: 15px;
+}
+
+/* fix the white header background strip
+I hate css */
+.dialog-pane .header-panel {
+    -fx-background-color: #005b13; /* match the dialog background */
+}
+
+/* style the header and content text */
+.dialog-pane .header-panel .label,
+.dialog-pane .content.label {
+    -fx-text-fill: white;
+}
+
+/* style the text field */
+.dialog-pane .text-field {
+    -fx-control-inner-background: #2d2d2d;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #aaaaaa;
+    -fx-background-radius: 4;
+}

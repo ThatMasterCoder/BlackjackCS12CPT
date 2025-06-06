@@ -1,10 +1,10 @@
 package com.example.blackjackgamegr12cscptwithjavafx;
 
 public class Player {
-    private Hand hand = new Hand();
+    private final Hand hand = new Hand();
     private int money = 10000;
-    private int currentBet = 0;
     private boolean insurance = false;
+    private int currentBet = 0;
 
     public Hand getHand() {
         return hand;
@@ -12,11 +12,6 @@ public class Player {
 
     public int getMoney() {
         return money;
-    }
-
-    public int getCurrentBet() {
-        return currentBet;
-
     }
 
     public boolean bet(int amount){
@@ -27,6 +22,11 @@ public class Player {
         } else return false;
     }
 
+
+    /**
+     * Pays the player on a win.
+     * @param isBlackjack {@code true} if it is a blackjack win, {@code false} if not
+     */
     public void win(boolean isBlackjack){ // we need to know if bj to pay 3:2 instead of 2:1
         if (isBlackjack){
             money += (int)(currentBet * 2.5);
@@ -36,9 +36,6 @@ public class Player {
         currentBet = 0;
     }
 
-    public void win(){
-        win(false);
-    }
 
     public void lose(){
         currentBet = 0;
@@ -66,6 +63,8 @@ public class Player {
         if (money < currentBet) return false;
         else {
             money -= currentBet;
+            /* actually increase the bet */
+            currentBet *= 2;
         }
         return true;
 

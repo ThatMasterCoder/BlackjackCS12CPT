@@ -11,7 +11,7 @@
 style="-fx-background-color: black;">
 
     <!-- Background Image -->
-    <ImageView fx:id="table" fitWidth="1000" fitHeight="500" preserveRatio="false"/>
+    <ImageView fx:id="table" fitWidth="1000" fitHeight="500"/>
 
 
     <!-- everything else goes in here-->
@@ -34,7 +34,7 @@ style="-fx-background-color: black;">
                 </VBox>
 
                 <!-- player -->
-                <VBox spacing="10" alignment="CENTER" translateY="75">
+                <VBox spacing="10" alignment="CENTER" translateY="70">
                     <Label text="Player's Hand" style="-fx-font-weight: bold; -fx-text-fill: yellow"/>
                     <HBox fx:id="playerCards" spacing="10" alignment="CENTER"/>
                     <Label fx:id="playerScoreLabel" text="Player: 0" style = "-fx-text-fill: yellow"/>
@@ -54,7 +54,7 @@ style="-fx-background-color: black;">
                 <Button fx:id="doubleButton" text="Double Down" onAction="#onDoubleDown" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
                 <Button fx:id="getInsuranceButton" text = "Get Insurance" onAction="#onInsurance" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
                 <Button fx:id="revealDealerButton" text="Reveal Dealer Card" onAction="#onRevealDealerCard" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-
+                <Button fx:id="changeBetButton" text="Custom Bet" onAction="#showBetPopup" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
             </HBox>
         </bottom>
     </BorderPane>

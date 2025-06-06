@@ -4,16 +4,21 @@ package com.example.blackjackgamegr12cscptwithjavafx;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class GameController {
 
 
     public static int DEFAULT_BET = 100;
+    private int betAmount = DEFAULT_BET;
     @FXML private ImageView table;
     @FXML private Label messageLabel;
     @FXML private Button revealDealerButton;
@@ -26,6 +31,7 @@ public class GameController {
     @FXML private Button getInsuranceButton;
     @FXML private Label dealerScoreLabel;
     @FXML private Label playerScoreLabel;
+    @FXML private Button changeBetButton;
 
     private Game game;
 
@@ -36,7 +42,7 @@ public class GameController {
         game.getDealer().resetHand();
 
         /* background cause java 17 is dumb */
-        Image background = new Image(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/BJ_TABLE.png").toExternalForm());
+        Image background = new Image(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/BJ_TABLE.png")).toExternalForm());
         table.setImage(background);
 
         updateUI();
@@ -45,7 +51,6 @@ public class GameController {
 
         /*
 
-        // fix this case.. the ace should be a 1 but i dont know why its not
         Card[] cards = {new Card(4, "4", new Suit("Spade")),new Ace(new Suit("Heart")),
         new FaceCard("J", new Suit("Diamond")),
         new Card(2, "2", new Suit("Heart")),
@@ -59,17 +64,68 @@ public class GameController {
     }
 
     @FXML
+    private void showBetPopup(){
+        TextInputDialog dialog = new TextInputDialog(String.valueOf(betAmount));
+        dialog.setTitle("Set new Bet");
+        dialog.setHeaderText("Enter new bet amount: ");
+        dialog.setContentText("Bet:");
+        /* change the icon in the middle */
+        ImageView icon = new ImageView(new Image(
+                Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png"))
+                        .toExternalForm()
+        ));
+        icon.setFitWidth(40);  // adjust size as needed
+        icon.setFitHeight(40);
+        dialog.setGraphic(icon);
+
+
+        // make the background of the dialog box look nice with a background and font and stuff
+        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/styles.css")).toExternalForm());
+
+        /* fix the ugly question mark icon and replace it with my own poker chip icon
+        basically I need to make a window OWNER after I initialize but before I show
+         */
+
+        Window owner = messageLabel.getScene().getWindow();
+        dialog.initOwner(owner);
+
+        // setting the custom icon
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Objects.requireNonNull( // would rather NullPointerException than silent fail...
+                getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")
+        ).toExternalForm()));
+
+
+
+        dialog.showAndWait().ifPresent(input -> {
+            try{
+                int inputBet = Integer.parseInt(input);
+                if (inputBet > 0 && inputBet <= game.getPlayer().getMoney()) {
+                    betAmount = inputBet;
+                    messageLabel.setText("New bet has been successfully set!");
+                    updateUI();
+                } else {
+                    messageLabel.setText("Invalid bet amount.");
+                }
+            } catch (NumberFormatException e){
+                messageLabel.setText("Please enter a number");
+            }
+        });
+
+    }
+
+    @FXML
     private void onDeal() {
-        if (game.startNewRound(DEFAULT_BET)){
+        if (game.startNewRound(betAmount)){
             System.out.println("New Round");
-            messageLabel.setText("Welcome to Blackjack!");
+            messageLabel.setText("Welcome to Blackjack! Min bet is $100");
             dealButton.setDisable(true);
             hitButton.setDisable(false);
             standButton.setDisable(false);
             getInsuranceButton.setDisable(true);
+            changeBetButton.setDisable(true);
 
-
-            doubleButton.setDisable(game.getPlayer().getMoney() < DEFAULT_BET);
+            doubleButton.setDisable(game.getPlayer().getMoney() < betAmount);
 
             revealDealerButton.setDisable(true);
             updateUI();
@@ -95,7 +151,7 @@ public class GameController {
         boolean insuranceBought = game.buyInsurance();
         getInsuranceButton.setDisable(true); // cant buy insurance again...
         if (insuranceBought){
-            System.out.println("tried to buy insurance but like this doesnt work yet");
+            messageLabel.setText("Insurance bought successfully!");
         }
     }
 
@@ -170,8 +226,9 @@ public class GameController {
         hitButton.setDisable(true);
         standButton.setDisable(true);
         doubleButton.setDisable(true);
-
         revealDealerButton.setDisable(true);
+        changeBetButton.setDisable(false);
+
         // Update money display!!
         updateUI();
     }
@@ -246,5 +303,5 @@ public class GameController {
     }
 
     // Add helper methods like updatePlayerUI(), updateDealerUI() later
-    // todo: Insurance, fix doubledown, splitting if time permits...
+    // todo: Insurance, fix doubleDown, splitting if time permits...
 }
