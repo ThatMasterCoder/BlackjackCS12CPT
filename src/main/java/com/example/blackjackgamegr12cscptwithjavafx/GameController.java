@@ -17,8 +17,9 @@ import java.util.Objects;
 public class GameController {
 
 
-    public static int DEFAULT_BET = 100;
-    private int betAmount = DEFAULT_BET;
+
+
+    // <editor-fold desc="FXML Components">
     @FXML private ImageView table;
     @FXML private Label messageLabel;
     @FXML private Button revealDealerButton;
@@ -34,8 +35,16 @@ public class GameController {
     @FXML private Button changeBetButton;
     @FXML private Label moneyLabel;
     @FXML private Label betLabel;
+    @FXML private Label insuranceLabel;
+    @FXML private Label payoutOrLossLabel;
+    // </editor-fold>
 
+    // Constants and variables
+    public static final int DEFAULT_BET = 100;
+    private int betAmount = DEFAULT_BET;
+    private boolean doubledDown;
     private Game game;
+    private String lastOutcome = "";
 
     @FXML
     public void initialize() {
@@ -43,6 +52,11 @@ public class GameController {
         game.getPlayer().resetHand();
         game.getDealer().resetHand();
         betAmount = DEFAULT_BET;
+        doubledDown = false;
+
+        // Assign CSS classes for gold color
+        moneyLabel.getStyleClass().add("money-label");
+        betLabel.getStyleClass().add("bet-label");
 
         /* background cause java 17 is dumb */
         Image background = new Image(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/BJ_TABLE.png")).toExternalForm());
@@ -70,7 +84,7 @@ public class GameController {
     private void showBetPopup(){
         TextInputDialog dialog = new TextInputDialog(String.valueOf(betAmount));
         dialog.setTitle("Set new Bet");
-        dialog.setHeaderText("Enter new bet amount: ");
+        dialog.setHeaderText("Enter new bet amount (Min bet is $50): ");
         dialog.setContentText("Bet:");
         /* change the icon in the middle */
         ImageView icon = new ImageView(new Image(
@@ -103,12 +117,12 @@ public class GameController {
         dialog.showAndWait().ifPresent(input -> {
             try{
                 int inputBet = Integer.parseInt(input);
-                if (inputBet > 0 && inputBet <= game.getPlayer().getMoney()) {
+                if (inputBet >= 50 && inputBet <= game.getPlayer().getMoney()) {
                     betAmount = inputBet;
                     messageLabel.setText("New bet has been successfully set!");
                     updateUI();
                 } else {
-                    messageLabel.setText("Invalid bet amount.");
+                    messageLabel.setText("Bet must be between $50 and your current money ($" + game.getPlayer().getMoney() + ").");
                 }
             } catch (NumberFormatException e){
                 messageLabel.setText("Please enter a number");
@@ -121,7 +135,7 @@ public class GameController {
     private void onDeal() {
         if (game.startNewRound(betAmount)){
             System.out.println("New Round");
-            messageLabel.setText("Welcome to Blackjack! Min bet is $100");
+            messageLabel.setText("Welcome to Blackjack! Use the buttons to play.");
             dealButton.setDisable(true);
             hitButton.setDisable(false);
             standButton.setDisable(false);
@@ -130,21 +144,23 @@ public class GameController {
 
             doubleButton.setDisable(game.getPlayer().getMoney() < betAmount);
 
+            doubledDown = false; // reset double down state
             revealDealerButton.setDisable(true);
             updateUI();
 
             if (game.getDealer().showsAce()){
                 messageLabel.setText("Insurance pays 2 to 1. Would you like insurance?");
                 getInsuranceButton.setDisable(false);
-
             }
 
             if (game.getPlayer().getHand().isBlackjack()) {
                 messageLabel.setText("Blackjack Won!");
                 handleBlackjack();
+                endRound(); // Only call endRound() here, not in handleBlackjack()
+
             }
         } else {
-            messageLabel.setText("Not enough money to bet!");
+            messageLabel.setText("Not enough money to bet! Contact the casino manager.");
             System.out.println("Broke, cant bet amount");
         }
     }
@@ -155,20 +171,21 @@ public class GameController {
         getInsuranceButton.setDisable(true); // cant buy insurance again...
         if (insuranceBought){
             messageLabel.setText("Insurance bought successfully!");
+        } else {
+            messageLabel.setText("Not enough money to buy insurance!");
         }
     }
 
     private void handleBlackjack() {
-        String outcome = game.getOutcome();
-        messageLabel.setText(outcome);
-        // todo: handle blackjack stuff money here
-        endRound();
+        lastOutcome = game.getOutcome();
+        messageLabel.setText(lastOutcome);
+        // endRound(); // Removed to avoid double-calling getOutcome()
     }
 
     @FXML
     private void onHit() {
         PlayerStatus status = game.playerHit();
-        getInsuranceButton.setDisable(true);
+        getInsuranceButton.setDisable(true); // cant buy insurance after the first two cards
         updateUI();
 
         System.out.println(status);
@@ -206,13 +223,15 @@ public class GameController {
     @FXML
     private void onDoubleDown() {
         PlayerStatus status = game.doubleDown();
+        doubledDown = true; // Set double down state
         updateUI();
         System.out.println("player doubles down");
+
 
         if (status == PlayerStatus.BUST) {
             messageLabel.setText("You Busted after doubling down! You lose.");
             endRound();
-        } else {
+        } else { // not having enough money to double down is handled in onDeal()
             messageLabel.setText("Doubled down! Dealer's turn... click to reveal cards.");
             hitButton.setDisable(true);
             standButton.setDisable(true);
@@ -222,9 +241,17 @@ public class GameController {
     }
 
     private void endRound(){
-
-        System.out.println(game.getOutcome());
-        messageLabel.setText(game.getOutcome());
+        String netChange = "Net Change: ";
+        if (game.getPlayer().getLastNetChange() > 0) {
+            netChange += "+$" + game.getPlayer().getLastNetChange();
+        } else if (game.getPlayer().getLastNetChange() < 0) {
+            netChange += "-$" + Math.abs(game.getPlayer().getLastNetChange());
+        } else {
+            netChange += "$0";
+        }
+        payoutOrLossLabel.setText(netChange);
+        System.out.println(lastOutcome);
+        messageLabel.setText(lastOutcome);
         dealButton.setDisable(false);
         hitButton.setDisable(true);
         standButton.setDisable(true);
@@ -246,7 +273,8 @@ public class GameController {
         updateUI();
 
         if (game.getDealer().getHand().getScore() >= 17) {
-            messageLabel.setText(game.getOutcome());
+            lastOutcome = game.getOutcome();
+            messageLabel.setText(lastOutcome);
             revealDealerButton.setDisable(true);
             endRound();
         }
@@ -306,7 +334,12 @@ public class GameController {
 
         // Update money and bet labels
         moneyLabel.setText("Money: $" + game.getPlayer().getMoney());
-        betLabel.setText("Bet: $" + betAmount);
+        String betLabelText = "Bet: $" + betAmount;
+        if (doubledDown){
+            betLabelText += " x2 (Doubled Down)";
+        }
+        betLabel.setText(betLabelText);
+        insuranceLabel.setText("Insurance: " + (game.getPlayer().hasInsurance() ? "Yes" : "No"));
     }
 
     // Add helper methods like updatePlayerUI(), updateDealerUI() later

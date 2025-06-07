@@ -34,7 +34,8 @@ I hate css */
     -fx-spacing: 20;
     -fx-alignment: center-right;
 }
-.money-label, .bet-label {
+
+.money-label, .bet-label, .insurance-label, .payout-label {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #FFD700; /* gold color */

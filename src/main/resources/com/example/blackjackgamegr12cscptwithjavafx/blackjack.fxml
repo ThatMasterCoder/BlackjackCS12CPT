@@ -6,9 +6,13 @@
 <?import javafx.geometry.Insets?>
 
 
+<?import java.net.URL?>
 <StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.example.blackjackgamegr12cscptwithjavafx.GameController"
-style="-fx-background-color: black;">
+           style="-fx-background-color: black;">
+    <stylesheets>
+        <URL value="@styles.css"/>
+    </stylesheets>
 
     <!-- Background Image -->
     <ImageView fx:id="table" fitWidth="1000" fitHeight="500"/>
@@ -42,7 +46,7 @@ style="-fx-background-color: black;">
             </VBox>
         </center>
 
-        <!-- Bottom: Controls -->
+        <!-- Bottom: Controls and Money/Bet Display -->
         <bottom>
             <HBox spacing="15" alignment="CENTER">
                 <padding>
@@ -59,13 +63,11 @@ style="-fx-background-color: black;">
         </bottom>
     </BorderPane>
 
-    <!-- Bottom Right: Player Money and Bet Display -->
-    <AnchorPane pickOnBounds="false">
-        <VBox fx:id="moneyBetBox" spacing="8" alignment="CENTER_RIGHT" layoutX="800" layoutY="420"
-              styleClass="money-bet-box">
-            <Label fx:id="moneyLabel" text="Money: $0" styleClass="money-label"/>
-            <Label fx:id="betLabel" text="Bet: $0" styleClass="bet-label"/>
-        </VBox>
-    </AnchorPane>
-
+    <!-- Overlay money/bet display in bottom right corner -->
+    <VBox spacing="8" alignment="CENTER_RIGHT" styleClass="money-bet-box" StackPane.alignment="BOTTOM_RIGHT" mouseTransparent="true" style="-fx-background-color: transparent;">
+        <Label fx:id="moneyLabel" text="Money: $0" styleClass="money-label"/>
+        <Label fx:id="betLabel" text="Bet: $0" styleClass="bet-label"/>
+        <Label fx:id="insuranceLabel" text="Insurance: No" styleClass="insurance-label"/>
+        <Label fx:id="payoutOrLossLabel" text="Net Change: $0" styleClass="payout-label"/>
+    </VBox>
 </StackPane>

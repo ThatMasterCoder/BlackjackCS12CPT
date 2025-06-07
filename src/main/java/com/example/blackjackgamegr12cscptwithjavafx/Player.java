@@ -6,6 +6,7 @@ public class Player {
     private int money = 1000;
     private boolean insurance = false;
     private int currentBet = 0;
+    private int lastNetChange = 0;
 
     /**
      * Retrieves the player's hand.
@@ -34,25 +35,31 @@ public class Player {
      * @return {@code true} if the bet was successful, {@code false} otherwise.
      */
     public boolean bet(int amount){
-        if (amount <= money ){
+        if (amount <= money){
             currentBet = amount;
             money -= amount;
             return true;
         } else return false;
     }
 
+    public int getCurrentBet() {
+        return currentBet;
+    }
 
     /**
      * Pays the player on a win.
      * @param isBlackjack {@code true} if it is a blackjack win, {@code false} if not
      */
-    public void win(boolean isBlackjack){ // we need to know if bj to pay 3:2 instead of 2:1
+    public void win(boolean isBlackjack){
+        System.out.println("PLAYER WINS");
+        // we need to know if bj to pay 3:2 instead of 2:1
         if (isBlackjack){
-            money += (int)(currentBet * 2.5);
+            money += (lastNetChange = (int)(currentBet * 2.5));
+            System.out.println("PLAYER WINS WITH BLACKJACK");
         } else {
-            money += currentBet * 2;
+            money += (lastNetChange = (currentBet * 2));
         }
-        currentBet = 0;
+        lastNetChange -= currentBet; // subtract the bet amount from the win amount
     }
 
     /**
@@ -60,7 +67,7 @@ public class Player {
      * This method is called when the player loses a hand.
      */
     public void lose(){
-        currentBet = 0;
+        lastNetChange = -currentBet;
     }
 
     /**
@@ -69,7 +76,7 @@ public class Player {
      */
     public void push(){
         money += currentBet;
-        currentBet = 0;
+        lastNetChange = 0; // reset last net change to 0 on a push, as it is neither a win nor a loss
         // tie
     }
 
@@ -89,6 +96,19 @@ public class Player {
         } else return false;
     }
 
+    /**
+     * Retrieves the last net change in the player's money.
+     * This value is updated after each win, loss, or push.
+     *
+     * @return The last net change in the player's money.
+     */
+    public int getLastNetChange(){
+        return lastNetChange;
+    }
+
+    public void setLastNetChange(int lastNetChange){
+        this.lastNetChange = lastNetChange;
+    }
 
     /**
      * Checks if the player has purchased insurance.
@@ -120,6 +140,8 @@ public class Player {
     }
 
 
+
+
     /**
      * Resets the player's hand and insurance status.
      * This method clears all cards in the player's hand and resets the ace count
@@ -129,6 +151,27 @@ public class Player {
      */
     public void resetHand() {
         hand.reset();
+        currentBet = 0; // reset current bet
         insurance = false;
     }
+
+
+    public void refundInsurance() {
+        if (insurance) {
+            money += currentBet / 2; // refund the insurance cost
+            insurance = false; // reset insurance status
+        }
+    }
+
+    /**
+     * Pays out the insurance bet to the player.
+     * This method is called when the dealer has a blackjack and the player has purchased insurance.
+     * The player receives back their insurance bet, which is half of the current bet,
+     * effectively paying 2:1 on the insurance bet.
+     */
+    public void winInsurance() {
+        money += currentBet; // insurance pays 2:1 on half the bet = 1x original bet
+        insurance = false;
+    }
+
 }

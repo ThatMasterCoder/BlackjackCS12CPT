@@ -7,9 +7,9 @@ package com.example.blackjackgamegr12cscptwithjavafx;
  * roles for the Player and the Dealer.
  */
 public class Game {
-    private Deck deck = new Deck();
-    private Player player = new Player();
-    private Dealer dealer = new Dealer();
+    private final Deck deck = new Deck();
+    private final Player player = new Player();
+    private final Dealer dealer = new Dealer();
 
     /**
      * Represents the main class for managing the game.
@@ -123,6 +123,7 @@ public class Game {
         player.getHand().addCard(deck.drawCard());
 
         if (player.getHand().isBust()){
+            player.setLastNetChange(-player.getCurrentBet()); // player loses the doubled bet
             return PlayerStatus.BUST;
         } else {
             return PlayerStatus.DOUBLE_DOWN;
@@ -142,29 +143,53 @@ public class Game {
         int dealerScore = dealer.getHand().getScore();
 
 
-        if (player.getHand().isBust()){
+        if (player.getHand().isBust()) {
             player.lose();
             return "Player busts! Dealer wins.";
-        } else if (player.getHand().hasFiveCards()){
+        }
+
+// Five-card Charlie win
+        else if (player.getHand().hasFiveCards()) {
             player.win(false);
-            return "Player has 5 Cards! Player wins.";
-        } else if (dealer.getHand().isBust()) {
+            return "Player has 5 cards! Player wins!";
+        }
+
+// Dealer bust
+        else if (dealer.getHand().isBust()) {
             player.win(false);
             return "Dealer busts! Player wins!";
-        } else if (player.getHand().isBlackjack() && dealer.hasBlackjack()) {
+        }
+
+// Both have blackjack
+        else if (player.getHand().isBlackjack() && dealer.hasBlackjack()) {
+            if (player.hasInsurance()) {
+                // refund insurance money because it wasn't needed
+                player.refundInsurance();
+            }
             player.push();
             return "Both have Blackjack. Push.";
-        } else if (player.getHand().isBlackjack()) {
+        }
+
+// Player has blackjack
+        else if (player.getHand().isBlackjack()) {
             player.win(true);
             return "Blackjack! Player wins!";
-        } else if (dealer.hasBlackjack()) {
+        }
+
+// Dealer has blackjack
+        else if (dealer.hasBlackjack()) {
             if (player.hasInsurance()) {
-                player.push(); // insurance pays 2:1
-                return "Dealer had Blackjack. Insurance pays.";
+                player.push(); // player gets original bet back
+                player.winInsurance(); // insurance pays 2:1
+                return "Dealer has Blackjack. Insurance pays.";
+            } else {
+                player.lose();
+                return "Dealer has Blackjack. Player loses.";
             }
-            player.lose();
-            return "Dealer has Blackjack. Player loses.";
-        } else if (playerScore > dealerScore) {
+        }
+
+// Compare final scores
+        else if (playerScore > dealerScore) {
             player.win(false);
             return "Player wins!";
         } else if (playerScore < dealerScore) {
