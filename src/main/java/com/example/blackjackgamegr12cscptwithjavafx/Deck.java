@@ -65,7 +65,7 @@ public class Deck {
     }
 
     /**
-     * Adds a card to the front (index 0) of the deck.
+     * Adds a card to the of the deck. (will be first to be pulled out)
      * <p> Best for edge-case testing for developers...</p>
      * @param card The card to be added to the deck.
      * @deprecated This method is deprecated and should not be used in new code.
