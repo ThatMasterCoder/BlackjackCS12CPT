@@ -170,8 +170,10 @@ public class Player {
      * effectively paying 2:1 on the insurance bet.
      */
     public void winInsurance() {
-        money += currentBet; // insurance pays 2:1 on half the bet = 1x original bet
+        // Insurance bet is currentBet / 2, payout is 2:1, so add back 3x the insurance bet
+        money += (currentBet / 2) * 3;
         insurance = false;
+        lastNetChange = 0; // reset last net change to 0 on insurance win, as it is neither a win nor a loss
     }
 
 }

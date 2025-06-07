@@ -31,14 +31,15 @@
         <center>
             <VBox spacing="20" alignment="CENTER" BorderPane.alignment="CENTER">
                 <!-- dealer -->
-                <VBox spacing="5" alignment="CENTER" translateY="-50">
+                <VBox spacing="7" alignment="CENTER" translateY="-50">
                     <Label text="Dealer's Hand" style="-fx-font-weight: bold; -fx-text-fill: yellow"/>
+                    <Button fx:id="getInsuranceButton" text = "Get Insurance" onAction="#onInsurance" disable="true" style="-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;"/>
                     <HBox fx:id="dealerCards" spacing="10" alignment="CENTER"/>
                     <Label fx:id="dealerScoreLabel" text="Dealer: ?" style="-fx-text-fill: yellow;"/>
                 </VBox>
 
                 <!-- player -->
-                <VBox spacing="10" alignment="CENTER" translateY="70">
+                <VBox spacing="10" alignment="CENTER" translateY="50">
                     <Label text="Player's Hand" style="-fx-font-weight: bold; -fx-text-fill: yellow"/>
                     <HBox fx:id="playerCards" spacing="10" alignment="CENTER"/>
                     <Label fx:id="playerScoreLabel" text="Player: 0" style = "-fx-text-fill: yellow"/>
@@ -52,13 +53,12 @@
                 <padding>
                     <Insets top="10" bottom="10" left="20" right="20"/>
                 </padding>
-                <Button fx:id="dealButton" text="Deal" onAction="#onDeal" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Button fx:id="hitButton" text="Hit" onAction="#onHit" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Button fx:id="standButton" text="Stand" onAction="#onStand" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Button fx:id="doubleButton" text="Double Down" onAction="#onDoubleDown" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Button fx:id="getInsuranceButton" text = "Get Insurance" onAction="#onInsurance" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Button fx:id="revealDealerButton" text="Reveal Dealer Card" onAction="#onRevealDealerCard" disable="true" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Button fx:id="changeBetButton" text="Custom Bet" onAction="#showBetPopup" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="dealButton" text="Deal" onAction="#onDeal" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="hitButton" text="Hit" onAction="#onHit" disable="true" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="standButton" text="Stand" onAction="#onStand" disable="true" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="doubleButton" text="Double Down" onAction="#onDoubleDown" disable="true" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="revealDealerButton" text="Reveal Dealer Card" onAction="#onRevealDealerCard" disable="true" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="changeBetButton" text="Custom Bet" onAction="#showBetPopup" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
             </HBox>
         </bottom>
     </BorderPane>

@@ -179,9 +179,17 @@ public class Game {
 // Dealer has blackjack
         else if (dealer.hasBlackjack()) {
             if (player.hasInsurance()) {
-                player.push(); // player gets original bet back
-                player.winInsurance(); // insurance pays 2:1
-                return "Dealer has Blackjack. Insurance pays.";
+                if (player.getHand().isBlackjack()) {
+                    // Both have blackjack: push main bet, refund insurance
+                    player.refundInsurance();
+                    player.push();
+                    return "Both have Blackjack. Push.";
+                } else {
+                    // Dealer has blackjack, player does not: lose main bet, win insurance
+                    player.winInsurance();
+                    player.lose();
+                    return "Dealer has Blackjack. Insurance pays.";
+                }
             } else {
                 player.lose();
                 return "Dealer has Blackjack. Player loses.";

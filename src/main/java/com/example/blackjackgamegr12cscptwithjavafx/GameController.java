@@ -64,20 +64,7 @@ public class GameController {
 
         updateUI();
 
-        // case work
 
-        /*
-
-        Card[] cards = {new Card(4, "4", new Suit("Spade")),new Ace(new Suit("Heart")),
-        new FaceCard("J", new Suit("Diamond")),
-        new Card(2, "2", new Suit("Heart")),
-        new Card(8, "8", new Suit("Spade")),
-        new FaceCard("K", new Suit("Diamond"))};
-
-        for (int i = cards.length -1; i >= 0; i--) {
-            game.getDeck().addCard(cards[i]);
-        }
-         */
     }
 
     @FXML
@@ -174,6 +161,7 @@ public class GameController {
         } else {
             messageLabel.setText("Not enough money to buy insurance!");
         }
+        updateUI();
     }
 
     private void handleBlackjack() {
@@ -287,6 +275,7 @@ public class GameController {
         // Show player cards
         for (Card card : game.getPlayer().getHand().getCards()) {
             Label cardLabel = new Label(card.toString());
+            // yuck, CSS is gross but it works
             cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white;");
             playerCards.getChildren().add(cardLabel);
         }
