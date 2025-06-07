@@ -37,6 +37,7 @@ public class GameController {
     @FXML private Label betLabel;
     @FXML private Label insuranceLabel;
     @FXML private Label payoutOrLossLabel;
+    @FXML private Label insuranceResultLabel;
     // </editor-fold>
 
     // Constants and variables
@@ -63,6 +64,18 @@ public class GameController {
         table.setImage(background);
 
         updateUI();
+
+
+
+        /*        For testing purposes, add some cards to the deck to test insurance
+        game.getDeck().addCard(new FaceCard("J", new Suit(Suit.Club)));
+        game.getDeck().addCard(new Card(2, "2", new Suit(Suit.Heart)));
+        game.getDeck().addCard(new Card(10, "10", new Suit(Suit.Spade)));
+        game.getDeck().addCard(new Ace(new Suit(Suit.Club)));
+        game.getDeck().addCard(new Card(2, "2", new Suit(Suit.Diamond)));
+
+         */
+
 
 
     }
@@ -122,12 +135,14 @@ public class GameController {
     private void onDeal() {
         if (game.startNewRound(betAmount)){
             System.out.println("New Round");
+
             messageLabel.setText("Welcome to Blackjack! Use the buttons to play.");
             dealButton.setDisable(true);
             hitButton.setDisable(false);
             standButton.setDisable(false);
             getInsuranceButton.setDisable(true);
             changeBetButton.setDisable(true);
+            insuranceResultLabel.setText(""); // Clear insurance result label
 
             doubleButton.setDisable(game.getPlayer().getMoney() < betAmount);
 
@@ -180,7 +195,8 @@ public class GameController {
 
         switch (status){
             case BUST:
-                messageLabel.setText("You Busted! You lose.");
+                lastOutcome = "You Busted! You lose."; // Set lastOutcome so endRound() displays it
+                messageLabel.setText(lastOutcome);
                 endRound();
                 break;
             case TWENTY_ONE:
@@ -229,11 +245,12 @@ public class GameController {
     }
 
     private void endRound(){
+        int net = game.getPlayer().getLastNetChange();
         String netChange = "Net Change: ";
-        if (game.getPlayer().getLastNetChange() > 0) {
-            netChange += "+$" + game.getPlayer().getLastNetChange();
-        } else if (game.getPlayer().getLastNetChange() < 0) {
-            netChange += "-$" + Math.abs(game.getPlayer().getLastNetChange());
+        if (net > 0) {
+            netChange += "+$" + net;
+        } else if (net < 0) {
+            netChange += "-$" + Math.abs(net);
         } else {
             netChange += "$0";
         }
@@ -246,6 +263,15 @@ public class GameController {
         doubleButton.setDisable(true);
         revealDealerButton.setDisable(true);
         changeBetButton.setDisable(false);
+
+        // Show insurance result in the new label
+        if (game.getPlayer().getLastInsuranceChange() < 0) {
+            insuranceResultLabel.setText("Insurance purchased: -$" + Math.abs(game.getPlayer().getLastInsuranceChange()));
+        } else if (game.getPlayer().getLastInsuranceChange() > 0) {
+            insuranceResultLabel.setText("Insurance paid out: +$" + game.getPlayer().getLastInsuranceChange());
+        } else {
+            insuranceResultLabel.setText("");
+        }
 
         // Update money display!!
         updateUI();
@@ -275,8 +301,8 @@ public class GameController {
         // Show player cards
         for (Card card : game.getPlayer().getHand().getCards()) {
             Label cardLabel = new Label(card.toString());
-            // yuck, CSS is gross but it works
-            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white;");
+            String color = (card.getSuit().isRed()) ? "red" : "black";
+            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white; -fx-text-fill: " + color + ";");
             playerCards.getChildren().add(cardLabel);
         }
 
@@ -288,8 +314,11 @@ public class GameController {
             Card card = dealerCardsList.get(i);
             boolean showCard = dealerRevealed || i == 0; // Show first card always, others only when revealed
             Label cardLabel = new Label(showCard ? card.toString() : "[Hidden]");
+            String color = (card.getSuit().toString().equals("Heart") || card.getSuit().toString().equals("Diamond")) ? "red" : "black";
+
+            // yay ternary operators!
             cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: " +
-                    (showCard ? "lightgray" : "white") + ";");
+                    (showCard ? "white" : "#8f8f8f") + ";-fx-text-fill: " + (showCard ? color : "darkblue") + ";" + (showCard ? "" : "-fx-font-weight: bold;"));
             dealerCards.getChildren().add(cardLabel);
         }
 

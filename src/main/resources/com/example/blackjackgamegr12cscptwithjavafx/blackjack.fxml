@@ -67,7 +67,10 @@
     <VBox spacing="8" alignment="CENTER_RIGHT" styleClass="money-bet-box" StackPane.alignment="BOTTOM_RIGHT" mouseTransparent="true" style="-fx-background-color: transparent;">
         <Label fx:id="moneyLabel" text="Money: $0" styleClass="money-label"/>
         <Label fx:id="betLabel" text="Bet: $0" styleClass="bet-label"/>
-        <Label fx:id="insuranceLabel" text="Insurance: No" styleClass="insurance-label"/>
         <Label fx:id="payoutOrLossLabel" text="Net Change: $0" styleClass="payout-label"/>
+        <Label fx:id="insuranceLabel" text="Insurance: No" styleClass="insurance-label"/>
+        <Label fx:id="insuranceResultLabel" styleClass="insurance-payout-label"/>
+
+
     </VBox>
 </StackPane>

@@ -7,6 +7,7 @@ public class Player {
     private boolean insurance = false;
     private int currentBet = 0;
     private int lastNetChange = 0;
+    private int lastInsuranceChange = 0;
 
     /**
      * Retrieves the player's hand.
@@ -91,6 +92,8 @@ public class Player {
     public boolean buyInsurance() {
         if (currentBet / 2 <= money) {
             money -= currentBet / 2;
+            lastInsuranceChange = -currentBet / 2;
+            lastNetChange = 0;
             insurance = true;
             return true;
         } else return false;
@@ -153,6 +156,7 @@ public class Player {
         hand.reset();
         currentBet = 0; // reset current bet
         insurance = false;
+        lastInsuranceChange = 0;
     }
 
 
@@ -160,6 +164,7 @@ public class Player {
         if (insurance) {
             money += currentBet / 2; // refund the insurance cost
             insurance = false; // reset insurance status
+            lastInsuranceChange = 0;
         }
     }
 
@@ -173,7 +178,11 @@ public class Player {
         // Insurance bet is currentBet / 2, payout is 2:1, so add back 3x the insurance bet
         money += (currentBet / 2) * 3;
         insurance = false;
-        lastNetChange = 0; // reset last net change to 0 on insurance win, as it is neither a win nor a loss
+        lastInsuranceChange = (currentBet / 2) * 2; // net gain from insurance (winnings only)
+    }
+
+    public int getLastInsuranceChange() {
+        return lastInsuranceChange;
     }
 
 }

@@ -17,13 +17,13 @@ package com.example.blackjackgamegr12cscptwithjavafx;
 public record Suit(String suit) {
 
     /** Unicode symbol for Spade */
-    public static final String Spade = "\u2660"; // ♠
+    public static final String Spade = "♠"; // ♠
     /** Unicode symbol for Heart */
-    public static final String Heart = "\u2665"; // ♥
+    public static final String Heart = "♥"; // ♥
     /** Unicode symbol for Club */
-    public static final String Club = "\u2663"; // ♣
+    public static final String Club = "♣"; // ♣
     /** Unicode symbol for Diamond */
-    public static final String Diamond = "\u2666"; // ♦
+    public static final String Diamond = "♦"; // ♦
 
     /**
      * Constructs a Suit, validating the input as a recognized suit name or symbol.
@@ -52,5 +52,13 @@ public record Suit(String suit) {
     @Override
     public String toString() {
         return suit;
+    }
+
+    /**
+     * Checks if the suit is red (Heart or Diamond).
+     * @return true if the suit is red, false otherwise
+     */
+    public boolean isRed() {
+        return this.suit.equals(Heart) || this.suit.equals(Diamond);
     }
 }

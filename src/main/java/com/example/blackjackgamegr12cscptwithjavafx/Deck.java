@@ -33,14 +33,14 @@ public class Deck {
         final String[] suits = {Suit.Club, Suit.Diamond, Suit.Heart, Suit.Spade};
         final String[] faceCardRanks = {"J", "Q", "K"};
         for (int decks = 0; decks < 8; decks++) {
-            for (int i = 0; i < suits.length; i++) {
+            for (String suit : suits) {
                 for (int j = 1; j <= 13; j++) {
                     if (j == 1) {
-                        cards.add(new Ace(new Suit(suits[i])));
+                        cards.add(new Ace(new Suit(suit)));
                     } else if (j > 10) {
-                        cards.add(new FaceCard(faceCardRanks[j - 11], new Suit(suits[i])));
+                        cards.add(new FaceCard(faceCardRanks[j - 11], new Suit(suit)));
                     } else {
-                        cards.add(new Card(j, Integer.toString(j), new Suit(suits[i])));
+                        cards.add(new Card(j, Integer.toString(j), new Suit(suit)));
                     }
                 }
             }
@@ -65,7 +65,7 @@ public class Deck {
     }
 
     /**
-     * Adds a card to the deck.
+     * Adds a card to the front (index 0) of the deck.
      * <p> Best for edge-case testing for developers...</p>
      * @param card The card to be added to the deck.
      * @deprecated This method is deprecated and should not be used in new code.

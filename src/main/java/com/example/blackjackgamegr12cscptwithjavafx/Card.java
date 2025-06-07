@@ -10,7 +10,7 @@ public class Card {
     /**
      * Attributes of each card.
      */
-    private int cardValue;
+    private final int cardValue;
     private final String rank;
     private final Suit suit;
 
@@ -41,5 +41,9 @@ public class Card {
     @Override
     public String toString() {
         return this.rank + " of " + this.suit;
+    }
+
+    public Suit getSuit() {
+        return suit;
     }
 }

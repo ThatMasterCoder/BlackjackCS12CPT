@@ -35,7 +35,7 @@ I hate css */
     -fx-alignment: center-right;
 }
 
-.money-label, .bet-label, .insurance-label, .payout-label {
+.money-label, .bet-label, .insurance-label, .payout-label, .insurance-payout-label{
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #FFD700; /* gold color */
