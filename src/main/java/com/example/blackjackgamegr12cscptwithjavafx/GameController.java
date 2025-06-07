@@ -360,7 +360,5 @@ public class GameController {
         insuranceLabel.setText("Insurance: " + (game.getPlayer().hasInsurance() ? "Yes" : "No"));
     }
 
-    // Add helper methods like updatePlayerUI(), updateDealerUI() later
-    // todo: Insurance, handleBlackjack, splitting if time permits...
     // todo: also, if time permits, change cards to images
 }
