@@ -254,6 +254,7 @@ public class GameController {
         } else {
             netChange += "$0";
         }
+        System.out.println("Net change: " + netChange);
         payoutOrLossLabel.setText(netChange);
         System.out.println(lastOutcome);
         messageLabel.setText(lastOutcome);
@@ -272,6 +273,8 @@ public class GameController {
         } else {
             insuranceResultLabel.setText("");
         }
+
+        System.out.println("End of round. Player money: $" + game.getPlayer().getMoney());
 
         // Update money display!!
         updateUI();
