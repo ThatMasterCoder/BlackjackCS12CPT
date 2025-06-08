@@ -317,8 +317,7 @@ public class GameController {
             String color = (card.getSuit().toString().equals("Heart") || card.getSuit().toString().equals("Diamond")) ? "red" : "black";
 
             // yay ternary operators!
-            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: " +
-                    (showCard ? "white" : "#8f8f8f") + ";-fx-text-fill: " + (showCard ? color : "darkblue") + ";" + (showCard ? "" : "-fx-font-weight: bold;"));
+            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white;-fx-text-fill: " + (showCard ? color : "darkblue") + ";" + (showCard ? "" : "-fx-font-weight: bold;"));
             dealerCards.getChildren().add(cardLabel);
         }
 
