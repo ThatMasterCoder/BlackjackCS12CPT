@@ -364,4 +364,5 @@ public class GameController {
 
     // todo: also, if time permits, change cards to images
     // todo: if time permits, implement splitting
+    // todo: add a console where i can implement custom commands (popup dialog with text input)
 }
