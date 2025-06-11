@@ -323,21 +323,36 @@ public class GameController {
         ).toExternalForm()));
 
 
-
-        dialog.showAndWait().ifPresent(input -> {
-            if (!input.trim().isEmpty()) {
-                handleConsoleCommand(input.trim());
+        while (true) {
+            String prompt = "";
+            var result = dialog.showAndWait();
+            if (result.isPresent()) {
+                String input = result.get();
+                if (input.equalsIgnoreCase("exit")) {
+                    System.out.println("Exiting console...");
+                    dialog.close();
+                    break;
+                } else if (!input.trim().isEmpty()) {
+                    prompt = handleConsoleCommand(input.trim());
+                } else {
+                    messageLabel.setText("No command entered.");
+                }
+                dialog.getEditor().clear();
             } else {
-                messageLabel.setText("No command entered.");
+                // User clicked Cancel or closed the dialog
+                System.out.println("Dialog closed by user.");
+                dialog.close();
+                break;
             }
-        });
+            dialog.setHeaderText("Casino Manager Console\n" + prompt);
+        }
     }
 
     private boolean login(String password){
         return "casino123".equals(password); // Simple hardcoded password for demo purposes
     }
 
-    private void handleConsoleCommand(String command) {
+    private String handleConsoleCommand(String command) {
         // Handle the console command here
         // For now, just print it to the console
         System.out.println("Console Command: " + command);
@@ -345,31 +360,33 @@ public class GameController {
         String[] parts = command.split(" ");
         // You can implement specific commands here, e.g.:
         if (!command.strip().equals("help") && !loggedIn){
-            System.out.println("Not logged in, need to log in first to run command");
+
             if (parts[0].equalsIgnoreCase("login")){
                 // Simple login check, in a real application you would check against a database or secure storage
                 if (parts.length > 1 && login(parts[1])) {
                     loggedIn = true;
-                    messageLabel.setText("Logged in as Casino Manager.");
-                    casinoManagerButton.setDisable(false); // Enable the casino manager button
+                    System.out.println("logged in as Casino Manager");
+                    return "Logged in as Casino Manager.";
                 } else {
-                    messageLabel.setText("Invalid login credentials. Please try again.");
+                    return "Invalid Login Credentials. Please try again.";
                 }
-                return; // Exit early if logging in
             } else {
-                messageLabel.setText("Please log in first using 'login <password>'.");
-                return; // Exit early if not logged in
+
+                System.out.println("Not logged in, need to log in first to run command");
+                return "Please log in first using 'login <password>'.";
             }
         }
 
         switch (parts[0].toLowerCase()){
             case "logout":
                 loggedIn = false;
-                messageLabel.setText("Logged out from Casino Manager.");
-                break;
+                return "Logged out from Casino Manager.";
             case "reset":
                 initialize();
-                break;
+
+                // cause on reset the logged in state is reset to false, we dont want to log out yet
+                loggedIn = true;
+                return "Game has been reset to initial state.";
             case "addmoney":
                 if (parts.length > 1) {
                     try {
@@ -377,42 +394,40 @@ public class GameController {
                         game.getPlayer().addMoney(moneyToAdd);
                         String message = "Added $" + moneyToAdd + " to player's money.";
                         System.out.println(message);
-                        messageLabel.setText(message);
                         updateUI();
+                        return message;
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid money amount. Please enter a valid number.");
-                        messageLabel.setText("Invalid money amount. Please enter a valid number.");
+                        return ("Invalid money amount. Please enter a valid number.");
                     }
                 } else {
                     System.out.println("Usage: addmoney <amount>");
-                    messageLabel.setText("Usage: addmoney <amount>");
+                    return ("Usage: addmoney <amount>");
                 }
-                break;
             case "setmoney":
                 if (parts.length > 1) {
                     try {
                         int newMoney = Integer.parseInt(parts[1]);
                         game.getPlayer().setMoney(newMoney);
                         String message = "Money set to $" + newMoney;
-                        System.out.println(message);
-                        messageLabel.setText(message);
                         updateUI();
+                        System.out.println(message);
+                        return message;
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid money amount. Please enter a valid number.");
-                        messageLabel.setText("Invalid money amount. Please enter a valid number.");
+                        return ("Invalid money amount. Please enter a valid number.");
                     }
                 } else {
                     System.out.println("Usage: setmoney <amount>");
-                    messageLabel.setText("Usage: setmoney <amount>");
+                    return ("Usage: setmoney <amount>");
                 }
-                break;
             case "reshuffle":
                 game.getDeck().generateDeck();
                 String message = "Deck reshuffled.";
-                System.out.println(message);
-                messageLabel.setText(message);
                 updateUI();
-                break;
+                System.out.println(message);
+                return message;
+
             case "help":
                 String helpText = "Available commands:\n" +
                         "reset - Resets the game to initial state.\n" +
@@ -451,8 +466,10 @@ public class GameController {
                 helpDialog.showAndWait();
                 break;
             default:
-                messageLabel.setText("Invalid command. Please enter a valid command.");
+                return ("Invalid command. Please enter a valid command.");
         }
+
+        return ""; // Return empty string if no specific message is needed
     }
 
     @FXML
@@ -492,7 +509,7 @@ public class GameController {
             Card card = dealerCardsList.get(i);
             boolean showCard = dealerRevealed || i == 0; // Show first card always, others only when revealed
             Label cardLabel = new Label(showCard ? card.toString() : "[Hidden]");
-            String color = (card.getSuit().toString().equals("Heart") || card.getSuit().toString().equals("Diamond")) ? "red" : "black";
+            String color = (card.getSuit().isRed()) ? "red" : "black";
 
             // yay ternary operators!
             cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white;-fx-text-fill: " + (showCard ? color : "darkblue") + ";" + (showCard ? "" : "-fx-font-weight: bold;"));
