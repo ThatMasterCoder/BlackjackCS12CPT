@@ -22,9 +22,12 @@
     <BorderPane>
         <!-- Top: Message Display -->
         <top>
-            <Label fx:id="messageLabel" text="Welcome to Blackjack!"
-                   style="-fx-font-size: 30px; -fx-text-fill: white;"
-                   BorderPane.alignment="CENTER"/>
+            <StackPane>
+                <Label fx:id="messageLabel" text="Welcome to Blackjack!" style="-fx-font-size: 30px; -fx-text-fill: white;" StackPane.alignment="CENTER"/>
+                <HBox alignment="CENTER_LEFT" StackPane.alignment="CENTER_LEFT">
+                    <Button fx:id="casinoManagerButton" text="Casino Manager" onAction="#showCasinoManagerPopup" style="-fx-background-color: darkred; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+            </StackPane>
         </top>
 
         <!-- Center: dealer, player cards -->

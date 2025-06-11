@@ -38,6 +38,7 @@ public class GameController {
     @FXML private Label insuranceLabel;
     @FXML private Label payoutOrLossLabel;
     @FXML private Label insuranceResultLabel;
+    @FXML private Button casinoManagerButton;
     // </editor-fold>
 
     // Constants and variables
@@ -278,6 +279,106 @@ public class GameController {
 
         // Update money display!!
         updateUI();
+    }
+
+    @FXML
+    private void showCasinoManagerPopup(){
+
+        System.out.println("button pressed, showing console dialog");
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Console Casino Manager");
+        dialog.setHeaderText("Enter Console Command: ");
+        dialog.setContentText(">>> ");
+        /* change the icon in the middle */
+        ImageView icon = new ImageView();
+
+        icon.setFitWidth(80);  // adjust size as needed
+        icon.setFitHeight(40);
+        dialog.setGraphic(icon);
+
+
+        // make the background of the dialog box look nice with a background and font and stuff
+        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/styles.css")).toExternalForm());
+        // Apply the console-log style class
+        dialog.getDialogPane().getStyleClass().add("console-log");
+        dialog.getEditor().getStyleClass().add("console-log");
+
+        /* fix the ugly question mark icon and replace it with my own poker chip icon
+        basically I need to make a window OWNER after I initialize but before I show
+         */
+
+        Window owner = messageLabel.getScene().getWindow();
+        dialog.initOwner(owner);
+
+        // setting the custom icon
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Objects.requireNonNull( // would rather NullPointerException than silent fail...
+                getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")
+        ).toExternalForm()));
+
+
+
+        dialog.showAndWait().ifPresent(input -> {
+            if (!input.trim().isEmpty()) {
+                handleConsoleCommand(input.trim());
+            } else {
+                messageLabel.setText("No command entered.");
+            }
+        });
+    }
+
+    private void handleConsoleCommand(String command) {
+        // Handle the console command here
+        // For now, just print it to the console
+        System.out.println("Console Command: " + command);
+
+        String[] parts = command.split(" ");
+        // You can implement specific commands here, e.g.:
+        switch (parts[0].toLowerCase()){
+            case "reset":
+                initialize();
+                break;
+            case "setmoney":
+                if (parts.length > 1) {
+                    try {
+                        int newMoney = Integer.parseInt(parts[1]);
+                        game.getPlayer().setMoney(newMoney);
+                        String message = "Money set to $" + newMoney;
+                        System.out.println(message);
+                        messageLabel.setText(message);
+                        updateUI();
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid money amount. Please enter a valid number.");
+                        messageLabel.setText("Invalid money amount. Please enter a valid number.");
+                    }
+                } else {
+                    System.out.println("Usage: setmoney <amount>");
+                    messageLabel.setText("Usage: setmoney <amount>");
+                }
+                break;
+            case "reshuffle":
+                game.getDeck().generateDeck();
+                String message = "Deck reshuffled.";
+                System.out.println(message);
+                messageLabel.setText(message);
+                updateUI();
+                break;
+            case "help":
+                String helpText = "Available commands:\n" +
+                        "reset - Resets the game to initial state.\n" +
+                        "setmoney <amount> - Sets the player's money to the specified amount.\n" +
+                        "reshuffle - Reshuffles the deck of cards.\n" +
+                        "help - Shows this help message.";
+                javafx.scene.control.Alert helpDialog = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                // setting the custom icon
+                Stage stage = (Stage) helpDialog.getDialogPane().getScene().getWindow();
+                stage.getIcons().add(new Image(Objects.requireNonNull( // would rather NullPointerException than silent fail...
+                        getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")
+                ).toExternalForm()));
+
+
+
+        }
     }
 
     @FXML
