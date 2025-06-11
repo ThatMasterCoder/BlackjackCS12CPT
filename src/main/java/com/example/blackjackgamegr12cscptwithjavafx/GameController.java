@@ -473,6 +473,11 @@ public class GameController {
                 System.out.println(message);
                 return message;
 
+            case "getcards":
+                int cardsLeft = game.getDeck().getDeckArrayList().size();
+                String cardsMessage = "Cards left in the deck: " + cardsLeft;
+                System.out.println(cardsMessage);
+                return cardsMessage;
             case "help":
                 String helpText = """
                         Available commands:
@@ -480,6 +485,7 @@ public class GameController {
                         reset - Resets the game to initial state.
                         setmoney <amount> - Sets the player's money to the specified amount.
                         addmoney <amount> - Adds the specified amount to the player's money.
+                        getcards - Displays number of cards left in the deck.
                         reshuffle - Reshuffles the deck of cards.
                         login <password> - Logs in as Casino Manager.
                         logout - Logs out from Casino Manager.
@@ -606,4 +612,5 @@ public class GameController {
     // todo: if time permits, implement splitting
     // todo: if time permits, implement surrender
     // todo: fix reveal dealer button such that if win on two cards, does not have to press it to finish round
+    // todo: show when deck is being reshuffled
 }
