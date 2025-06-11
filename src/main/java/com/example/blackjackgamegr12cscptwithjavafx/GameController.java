@@ -276,6 +276,35 @@ public class GameController {
         updateUI();
     }
 
+    /**
+     * Displays the Casino Manager Popup and provides a console-like interface for interacting with
+     * the application using text-based commands. The popup allows the user to input commands, which
+     * are then processed, providing feedback or executing specific actions based on the input.
+     * This feature is primarily intended for advanced management or debugging purposes.
+     *<p></p>
+     * The popup includes the following features:
+     * - A customizable dialog box for entering commands.
+     * - Styled UI components to enhance the appearance of the dialog.
+     * - A poker chip icon replacing the default dialog question mark.
+     * - A central positioning relative to the main application window.
+     * - Continuous input prompts, where the user can execute commands or exit the console.
+     *<p></p>
+     * Commands can include but are not limited to actions such as "exit" to close the console,
+     * or additional commands processed by `handleConsoleCommand` for managing the game or application state.
+     *<p></p>
+     * Customization includes:
+     * - Styling via an external stylesheet.
+     * - A custom application icon for consistent branding.
+     * - Re-centering of the dialog whenever content changes.
+     *<p>
+     *</p>
+     * The process will terminate if the user chooses to exit or closes the popup.
+     *
+     *
+     * @see #handleConsoleCommand(String command)
+     *
+     *
+     */
     @FXML
     private void showCasinoManagerPopup(){
 
@@ -350,6 +379,20 @@ public class GameController {
         return "casino123".equals(password); // Simple hardcoded password for demo purposes
     }
 
+    /**
+     * Handles console commands received as input and performs the corresponding actions or operations
+     * based on the command. Commands include actions such as logging in, logging out, managing game states,
+     * adjusting the player's money, reshuffling the deck, and more. For certain commands, interaction with
+     * the game's state and UI is required.
+     *
+     * @param command The console command input as a string. This should include the command type and
+     *                any optional arguments separated by spaces. Examples of commands include:
+     *                "login <password>", "setmoney <amount>", "addmoney <amount>", "reset", "logout", and "help".
+     * @return A string message providing feedback about the operation or any relevant instructions.
+     *         Examples include success messages like "Logged in as Casino Manager.", error messages
+     *         such as "Invalid Login Credentials. Please try again.", or usage information such as
+     *         "Usage: addmoney <amount>".
+     */
     private String handleConsoleCommand(String command) {
         // Handle the console command here
         // For now, just print it to the console
@@ -386,7 +429,7 @@ public class GameController {
             case "reset":
                 initialize();
 
-                // cause on reset the logged in state is reset to false, we dont want to log out yet
+                // cause on reset the logged in state is reset to false; we dont want to log out yet
                 loggedIn = true;
                 return "Game has been reset to initial state.";
             case "addmoney":
@@ -436,6 +479,7 @@ public class GameController {
                         exit - Exits the console. (WARNING: DOES NOT LOG OUT)
                         reset - Resets the game to initial state.
                         setmoney <amount> - Sets the player's money to the specified amount.
+                        addmoney <amount> - Adds the specified amount to the player's money.
                         reshuffle - Reshuffles the deck of cards.
                         login <password> - Logs in as Casino Manager.
                         logout - Logs out from Casino Manager.
