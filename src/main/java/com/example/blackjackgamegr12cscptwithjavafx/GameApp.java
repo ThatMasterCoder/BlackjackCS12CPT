@@ -26,6 +26,7 @@ public class GameApp extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 1000, 500);
         stage.setTitle("Blackjack");
         stage.setScene(scene);
+        stage.setMaximized(true); // Make the window maximized by default
 
         stage.getIcons().add(new Image(
                 Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")).toExternalForm()
