@@ -604,4 +604,6 @@ public class GameController {
     }
 
     // todo: if time permits, implement splitting
+    // todo: if time permits, implement surrender
+    // todo: fix reveal dealer button such that if win on two cards, does not have to press it to finish round
 }
