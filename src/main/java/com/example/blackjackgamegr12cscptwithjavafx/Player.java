@@ -185,4 +185,14 @@ public class Player {
         return lastInsuranceChange;
     }
 
+
+    /**
+     * Sets the player's money to a specified amount.
+     * This method is intended for use in the casino manager to adjust the player's balance.
+     *
+     * @param money The new amount of money to set for the player.
+     */
+    public void setMoney(int money) {
+        this.money = money;
+    }
 }
