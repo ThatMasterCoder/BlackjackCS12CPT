@@ -19,7 +19,7 @@ public class GameController {
 
 
 
-    // <editor-fold desc="FXML Components">
+    // <editor-fold desc="FXML Components, such as buttons, images, labels etc.">
     @FXML private ImageView table;
     @FXML private Label messageLabel;
     @FXML private Button revealDealerButton;
@@ -67,18 +67,6 @@ public class GameController {
         table.setImage(background);
 
         updateUI();
-
-
-
-        /*        For testing purposes, add some cards to the deck to test insurance
-        game.getDeck().addCard(new FaceCard("J", new Suit(Suit.Club)));
-        game.getDeck().addCard(new Card(2, "2", new Suit(Suit.Heart)));
-        game.getDeck().addCard(new Card(10, "10", new Suit(Suit.Spade)));
-        game.getDeck().addCard(new Ace(new Suit(Suit.Club)));
-        game.getDeck().addCard(new Card(2, "2", new Suit(Suit.Diamond)));
-
-         */
-
 
 
     }
@@ -145,6 +133,7 @@ public class GameController {
             standButton.setDisable(false);
             getInsuranceButton.setDisable(true);
             changeBetButton.setDisable(true);
+            casinoManagerButton.setDisable(false); // allow casino manager to open console
             insuranceResultLabel.setText(""); // Clear insurance result label
 
             doubleButton.setDisable(game.getPlayer().getMoney() < betAmount);
@@ -429,13 +418,14 @@ public class GameController {
                 return message;
 
             case "help":
-                String helpText = "Available commands:\n" +
-                        "reset - Resets the game to initial state.\n" +
-                        "setmoney <amount> - Sets the player's money to the specified amount.\n" +
-                        "reshuffle - Reshuffles the deck of cards.\n" +
-                        "login <password> - Logs in as Casino Manager.\n" +
-                        "logout - Logs out from Casino Manager.\n" +
-                        "help - Shows this help message.";
+                String helpText = """
+                        Available commands:
+                        reset - Resets the game to initial state.
+                        setmoney <amount> - Sets the player's money to the specified amount.
+                        reshuffle - Reshuffles the deck of cards.
+                        login <password> - Logs in as Casino Manager.
+                        logout - Logs out from Casino Manager.
+                        help - Shows this help message.""";
 
                 javafx.scene.control.Dialog<Void> helpDialog = new javafx.scene.control.Dialog<>();
                 helpDialog.setTitle("Help");
@@ -489,31 +479,33 @@ public class GameController {
         }
     }
     private void updateUI() {
-        // Clear cards
+        // Clear previous cards
         playerCards.getChildren().clear();
         dealerCards.getChildren().clear();
 
-        // Show player cards
+        // Display player's cards
         for (Card card : game.getPlayer().getHand().getCards()) {
-            Label cardLabel = new Label(card.toString());
-            String color = (card.getSuit().isRed()) ? "red" : "black";
-            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white; -fx-text-fill: " + color + ";");
-            playerCards.getChildren().add(cardLabel);
+            ImageView cardImageView = new ImageView(card.getCardImage());
+            cardImageView.setFitHeight(110); // Reduced from 150 to 110 (approximately 3/4 size)
+            cardImageView.setFitWidth(75);   // Reduced from 100 to 75 (approximately 3/4 size)
+            cardImageView.setPreserveRatio(true);
+            playerCards.getChildren().add(cardImageView);
         }
 
-        // Show dealer cards - handle empty hand case... just in case :)
+        // Display dealer's cards
         boolean dealerRevealed = !(dealButton.isDisabled() && revealDealerButton.isDisabled()) || game.getPlayer().getHand().isBust();
         ArrayList<Card> dealerCardsList = game.getDealer().getHand().getCards();
 
         for (int i = 0; i < dealerCardsList.size(); i++) {
             Card card = dealerCardsList.get(i);
             boolean showCard = dealerRevealed || i == 0; // Show first card always, others only when revealed
-            Label cardLabel = new Label(showCard ? card.toString() : "[Hidden]");
-            String color = (card.getSuit().isRed()) ? "red" : "black";
 
-            // yay ternary operators!
-            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white;-fx-text-fill: " + (showCard ? color : "darkblue") + ";" + (showCard ? "" : "-fx-font-weight: bold;"));
-            dealerCards.getChildren().add(cardLabel);
+            ImageView cardImageView = new ImageView(showCard ? card.getCardImage() : Card.getCardBackImage());
+            cardImageView.setFitHeight(110); // Reduced from 150 to 110 (approximately 3/4 size)
+            cardImageView.setFitWidth(75);   // Reduced from 100 to 75 (approximately 3/4 size)
+            cardImageView.setPreserveRatio(true);
+
+            dealerCards.getChildren().add(cardImageView);
         }
 
         // Update score labels
@@ -523,7 +515,6 @@ public class GameController {
             playerScoreText += " (Soft)";
         }
         playerScoreLabel.setText(playerScoreText);
-
 
         String dealerScoreText;
         if (dealerCardsList.isEmpty()) {
