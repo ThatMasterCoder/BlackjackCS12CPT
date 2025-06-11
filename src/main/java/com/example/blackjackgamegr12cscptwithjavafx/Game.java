@@ -7,9 +7,9 @@ package com.example.blackjackgamegr12cscptwithjavafx;
  * roles for the Player and the Dealer.
  */
 public class Game {
-    private final Deck deck = new Deck();
-    private final Player player = new Player();
-    private final Dealer dealer = new Dealer();
+    private final Deck deck;
+    private final Player player;
+    private final Dealer dealer;
 
     /**
      * Represents the main class for managing the game.
@@ -17,6 +17,9 @@ public class Game {
      * It prepares the deck to be used throughout the game.
      */
     public Game(){
+        deck = new Deck();
+        player = new Player();
+        dealer = new Dealer();
         deck.generateDeck();
     }
 
