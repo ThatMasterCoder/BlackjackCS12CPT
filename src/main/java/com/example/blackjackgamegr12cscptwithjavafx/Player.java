@@ -195,4 +195,14 @@ public class Player {
     public void setMoney(int money) {
         this.money = money;
     }
+
+    /**
+     * Adds a specified amount of money to the player's current balance.
+     * This method is intended for use in the casino manager to adjust the player's balance.
+     *
+     * @param moneyToAdd The amount of money to add to the player's balance.
+     */
+    public void addMoney(int moneyToAdd) {
+        setMoney(getMoney() + moneyToAdd);
+    }
 }
