@@ -311,6 +311,11 @@ public class GameController {
                 getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")
         ).toExternalForm()));
 
+        // Center the dialog on screen
+        stage.setOnShown(e -> {
+            stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
+            stage.setY((owner.getY() + owner.getHeight() / 2) - stage.getHeight() / 2);
+        });
 
         while (true) {
             String prompt = "";
@@ -334,6 +339,10 @@ public class GameController {
                 break;
             }
             dialog.setHeaderText("Casino Manager Console\n" + prompt);
+
+            // Re-center the dialog after content changes
+            stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
+            stage.setY((owner.getY() + owner.getHeight() / 2) - stage.getHeight() / 2);
         }
     }
 
@@ -352,7 +361,11 @@ public class GameController {
 
             if (parts[0].equalsIgnoreCase("login")){
                 // Simple login check, in a real application you would check against a database or secure storage
-                if (parts.length > 1 && login(parts[1])) {
+                if (parts.length < 2) {
+                    return "Please provide a password to log in. Usage: login <password>";
+                }
+
+                if (login(command.substring(parts[0].length() + 1).trim())) {
                     loggedIn = true;
                     System.out.println("logged in as Casino Manager");
                     return "Logged in as Casino Manager.";
