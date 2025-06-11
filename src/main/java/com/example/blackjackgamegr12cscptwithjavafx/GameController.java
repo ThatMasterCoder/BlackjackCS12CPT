@@ -545,6 +545,5 @@ public class GameController {
         insuranceLabel.setText("Insurance: " + (game.getPlayer().hasInsurance() ? "Yes" : "No"));
     }
 
-    // todo: also, if time permits, change cards to images
     // todo: if time permits, implement splitting
 }
