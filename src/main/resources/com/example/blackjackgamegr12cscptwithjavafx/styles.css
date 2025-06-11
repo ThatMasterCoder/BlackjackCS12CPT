@@ -60,3 +60,10 @@ I hate css */
 .dialog-pane.console-log .header-panel {
     -fx-background-color: black !important;
 }
+
+/* Make TextArea in console-log dialogs have black background and white text */
+.console-log .text-area, .console-log .text-area .content {
+    -fx-control-inner-background: black;
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}

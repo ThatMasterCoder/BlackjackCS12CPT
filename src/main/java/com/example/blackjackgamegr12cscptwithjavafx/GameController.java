@@ -47,6 +47,7 @@ public class GameController {
     private boolean doubledDown;
     private Game game;
     private String lastOutcome = "";
+    private boolean loggedIn; // for casino manager login state
 
     @FXML
     public void initialize() {
@@ -55,6 +56,7 @@ public class GameController {
         game.getDealer().resetHand();
         betAmount = DEFAULT_BET;
         doubledDown = false;
+        loggedIn = false;
 
         // Assign CSS classes for gold color
         moneyLabel.getStyleClass().add("money-label");
@@ -163,7 +165,11 @@ public class GameController {
 
             }
         } else {
-            messageLabel.setText("Not enough money to bet! Contact the casino manager.");
+            if (game.getPlayer().getMoney() < 50) {
+                messageLabel.setText("Not enough money to start a new round! Contact the casino manager.");
+            } else if (game.getPlayer().getMoney() < betAmount) {
+                messageLabel.setText("Not enough money to bet $" + betAmount + "! Please change your bet amount.");
+            }
             System.out.println("Broke, cant bet amount");
         }
     }
@@ -327,6 +333,10 @@ public class GameController {
         });
     }
 
+    private boolean login(String password){
+        return "casino123".equals(password); // Simple hardcoded password for demo purposes
+    }
+
     private void handleConsoleCommand(String command) {
         // Handle the console command here
         // For now, just print it to the console
@@ -334,9 +344,49 @@ public class GameController {
 
         String[] parts = command.split(" ");
         // You can implement specific commands here, e.g.:
+        if (!command.strip().equals("help") && !loggedIn){
+            System.out.println("Not logged in, need to log in first to run command");
+            if (parts[0].equalsIgnoreCase("login")){
+                // Simple login check, in a real application you would check against a database or secure storage
+                if (parts.length > 1 && login(parts[1])) {
+                    loggedIn = true;
+                    messageLabel.setText("Logged in as Casino Manager.");
+                    casinoManagerButton.setDisable(false); // Enable the casino manager button
+                } else {
+                    messageLabel.setText("Invalid login credentials. Please try again.");
+                }
+                return; // Exit early if logging in
+            } else {
+                messageLabel.setText("Please log in first using 'login <password>'.");
+                return; // Exit early if not logged in
+            }
+        }
+
         switch (parts[0].toLowerCase()){
+            case "logout":
+                loggedIn = false;
+                messageLabel.setText("Logged out from Casino Manager.");
+                break;
             case "reset":
                 initialize();
+                break;
+            case "addmoney":
+                if (parts.length > 1) {
+                    try {
+                        int moneyToAdd = Integer.parseInt(parts[1]);
+                        game.getPlayer().addMoney(moneyToAdd);
+                        String message = "Added $" + moneyToAdd + " to player's money.";
+                        System.out.println(message);
+                        messageLabel.setText(message);
+                        updateUI();
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid money amount. Please enter a valid number.");
+                        messageLabel.setText("Invalid money amount. Please enter a valid number.");
+                    }
+                } else {
+                    System.out.println("Usage: addmoney <amount>");
+                    messageLabel.setText("Usage: addmoney <amount>");
+                }
                 break;
             case "setmoney":
                 if (parts.length > 1) {
@@ -368,16 +418,40 @@ public class GameController {
                         "reset - Resets the game to initial state.\n" +
                         "setmoney <amount> - Sets the player's money to the specified amount.\n" +
                         "reshuffle - Reshuffles the deck of cards.\n" +
+                        "login <password> - Logs in as Casino Manager.\n" +
+                        "logout - Logs out from Casino Manager.\n" +
                         "help - Shows this help message.";
-                javafx.scene.control.Alert helpDialog = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                // setting the custom icon
-                Stage stage = (Stage) helpDialog.getDialogPane().getScene().getWindow();
-                stage.getIcons().add(new Image(Objects.requireNonNull( // would rather NullPointerException than silent fail...
+
+                javafx.scene.control.Dialog<Void> helpDialog = new javafx.scene.control.Dialog<>();
+                helpDialog.setTitle("Help");
+                helpDialog.setHeaderText("Console Commands Help");
+
+                javafx.scene.control.TextArea helpArea = new javafx.scene.control.TextArea(helpText);
+                helpArea.setEditable(false);
+                helpArea.setWrapText(true);
+                helpArea.setPrefWidth(600);
+                helpArea.setPrefHeight(300);
+                helpArea.getStyleClass().add("console-log");
+
+                javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(helpArea);
+                content.setPrefSize(600, 300);
+                helpDialog.getDialogPane().setContent(content);
+
+                // Apply styles
+                helpDialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/styles.css")).toExternalForm());
+                helpDialog.getDialogPane().getStyleClass().add("console-log");
+
+                // Set custom icon
+                Stage helpStage = (Stage) helpDialog.getDialogPane().getScene().getWindow();
+                helpStage.getIcons().add(new Image(Objects.requireNonNull(
                         getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")
                 ).toExternalForm()));
 
-
-
+                helpDialog.getDialogPane().getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
+                helpDialog.showAndWait();
+                break;
+            default:
+                messageLabel.setText("Invalid command. Please enter a valid command.");
         }
     }
 
