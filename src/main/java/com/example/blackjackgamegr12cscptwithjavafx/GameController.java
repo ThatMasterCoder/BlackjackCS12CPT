@@ -420,6 +420,7 @@ public class GameController {
             case "help":
                 String helpText = """
                         Available commands:
+                        exit - Exits the console. (WARNING: DOES NOT LOG OUT)
                         reset - Resets the game to initial state.
                         setmoney <amount> - Sets the player's money to the specified amount.
                         reshuffle - Reshuffles the deck of cards.
