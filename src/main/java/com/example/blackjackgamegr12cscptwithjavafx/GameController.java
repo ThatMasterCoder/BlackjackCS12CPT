@@ -781,6 +781,26 @@ public class GameController {
         return ""; // Return empty string if no specific message is needed
     }
 
+    /**
+     * Handles the reveal of dealer's cards and applies standard blackjack dealer rules.
+     * <p>
+     * When called, this method:
+     * <ol>
+     *   <li>Checks if the dealer needs to draw additional cards (score &lt; 17 or soft 17)</li>
+     *   <li>Updates the UI to show all cards</li>
+     *   <li>Determines the game outcome if the dealer's final score is 17 or higher</li>
+     *   <li>Ends the round if appropriate</li>
+     * </ol>
+     * </p>
+     * <p>
+     * Standard blackjack rules applied:
+     * <ul>
+     *   <li>Dealer must draw on scores below 17</li>
+     *   <li>Dealer must draw on soft 17 (Ace counted as 11 with total being 17)</li>
+     *   <li>Dealer stands on hard 17 or higher</li>
+     * </ul>
+     * </p>
+     */
     @FXML
     private void onRevealDealerCard() {
         Hand dealerHand  = game.getDealer().getHand();
