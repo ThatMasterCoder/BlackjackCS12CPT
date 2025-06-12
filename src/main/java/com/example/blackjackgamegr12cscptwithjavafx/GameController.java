@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class GameController {
-    
+
     // <editor-fold desc="FXML Components, such as buttons, images, labels etc.">
     @FXML private ImageView table;
     @FXML private Label messageLabel;
@@ -47,6 +47,11 @@ public class GameController {
     private String lastOutcome = "";
     private boolean loggedIn; // for casino manager login state
 
+    /**
+     * Initializes the game controller, setting up the initial game state, UI components,
+     * and event handlers. This method is called automatically by JavaFX when the FXML file
+     * is loaded.
+     */
     @FXML
     public void initialize() {
         game = new Game();
@@ -76,57 +81,83 @@ public class GameController {
 
     }
 
+
+    /**
+     * Displays a dialog box that allows the player to set a new bet amount.
+     * <p>
+     * This method creates and configures a custom dialog box with the following features:
+     * <ul>
+     *   <li>Input validation to ensure the bet is within acceptable limits (minimum $50, maximum: player's current money)</li>
+     *   <li>Custom styling with CSS for visual consistency with the game</li>
+     *   <li>Custom icon (poker chip) replacing the default dialog icon</li>
+     *   <li>Visual feedback through the message label showing the result of the bet change</li>
+     * </ul>
+     * </p>
+     * The method handles three cases:
+     * <ol>
+     *   <li>Valid bet amount within acceptable range - updates the bet amount</li>
+     *   <li>Invalid bet amount (outside range) - shows an error message</li>
+     *   <li>Non-numeric input - shows an error message</li>
+     * </ol>
+     */
     @FXML
     private void showBetPopup(){
+        // Create dialog with current bet as default value
         TextInputDialog dialog = new TextInputDialog(String.valueOf(betAmount));
         dialog.setTitle("Set new Bet");
         dialog.setHeaderText("Enter new bet amount (Min bet is $50): ");
         dialog.setContentText("Bet:");
-        /* change the icon in the middle */
+
+        /* Replace the default icon with a custom poker chip icon */
         ImageView icon = new ImageView(new Image(
                 Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png"))
                         .toExternalForm()
         ));
-        icon.setFitWidth(40);  // adjust size as needed
+        icon.setFitWidth(40);  // Set icon dimensions
         icon.setFitHeight(40);
         dialog.setGraphic(icon);
 
-
-        // make the background of the dialog box look nice with a background and font and stuff
+        // Apply custom CSS styling to the dialog
         dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/styles.css")).toExternalForm());
 
-        /* fix the ugly question mark icon and replace it with my own poker chip icon
-        basically I need to make a window OWNER after I initialize but before I show
-         */
-
+        /* Fix the default question mark icon by setting the owner window and replacing with custom icon */
         Window owner = messageLabel.getScene().getWindow();
         dialog.initOwner(owner);
 
-        // setting the custom icon
+        // Set the custom icon for the dialog window
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(Objects.requireNonNull( // would rather NullPointerException than silent fail...
+        stage.getIcons().add(new Image(Objects.requireNonNull(
                 getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")
         ).toExternalForm()));
 
-
-
+        // Process the user's input when they click OK
         dialog.showAndWait().ifPresent(input -> {
-            try{
+            try {
+                // Parse the input to an integer
                 int inputBet = Integer.parseInt(input);
+
+                // Validate bet amount (minimum $50, maximum: player's current money)
                 if (inputBet >= 50 && inputBet <= game.getPlayer().getMoney()) {
                     betAmount = inputBet;
                     messageLabel.setText("New bet has been successfully set!");
                     updateUI();
                 } else {
+                    // Show error for bet outside valid range
                     messageLabel.setText("Bet must be between $50 and your current money ($" + game.getPlayer().getMoney() + ").");
                 }
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
+                // Show error for non-numeric input
                 messageLabel.setText("Please enter a number");
             }
         });
-
     }
 
+    /**
+     * Handles the "Deal" button click event to start a new round of Blackjack.
+     * This method initializes the game state, deals cards to the player and dealer,
+     * and updates the UI accordingly. It also manages special cases like calling for insurance
+     * when the dealer shows an Ace.
+     */
     @FXML
     private void onDeal() {
         String playResult = game.startNewRound(betAmount);
@@ -179,6 +210,10 @@ public class GameController {
         }
     }
 
+    /**
+     * Updates the UI components to reflect the current game state, including displaying
+     * the player's and dealer's hands, scores, and other relevant information.
+     */
     @FXML
     private void onInsurance(){
         boolean insuranceBought = game.buyInsurance();
@@ -204,9 +239,27 @@ public class GameController {
         updateUI();
     }
 
+
+    /**
+     * Processes the player's decision to reject insurance when the dealer shows an ace.
+     * <p>
+     * This method handles two different scenarios based on whether the dealer has blackjack:
+     * <ol>
+     *   <li><b>Dealer has blackjack:</b> The round ends immediately, revealing the dealer's
+     *       hand and determining the outcome. The player loses their bet since they rejected
+     *       the insurance that would have covered this loss.</li>
+     *   <li><b>Dealer doesn't have blackjack:</b> The game continues normally, allowing the
+     *       player to hit, stand, or double down. This validates the player's decision to
+     *       decline insurance as the optimal strategy.</li>
+     * </ol>
+     * </p>
+     * After processing the insurance decision, the UI is updated to reflect the current
+     * game state, including any changes to the player's money, bet, and available actions.
+     */
     @FXML
     private void onRejectInsurance() {
-        getInsuranceButton.setDisable(true); // cant buy insurance again...
+        // Disable insurance buttons to prevent multiple selections
+        getInsuranceButton.setDisable(true);
         rejectInsuranceButton.setDisable(true);
 
         if (game.getDealer().hasBlackjack()){
@@ -223,15 +276,60 @@ public class GameController {
             messageLabel.setText("Insurance rejected. Dealer does not have Blackjack.");
         }
 
+        // Update the UI to reflect current game state
         updateUI();
     }
 
+
+    /**
+     * Handles the case when the player is dealt a blackjack (a natural 21 with the first two cards).
+     * <p>
+     * This method processes the outcome of the player having a blackjack by:
+     * <ol>
+     *   <li>Getting the game outcome from the game logic, which determines the appropriate
+     *       payout (typically 3:2 on the original bet)</li>
+     *   <li>Updating the message displayed to the player to show they've won with a blackjack</li>
+     * </ol>
+     * </p>
+     * The actual game ending logic is handled by the caller (typically onDeal), which calls
+     * endRound() after this method. This separation prevents double-calling getOutcome(),
+     * which would incorrectly calculate payouts twice.
+     *
+     * @see Game#getOutcome()
+     * @see #endRound()
+     */
     private void handlePlayerBlackjack() {
+        // Get the outcome from the game logic (typically blackjack pays 3:2)
         lastOutcome = game.getOutcome();
+        // Display the outcome to the player
         messageLabel.setText(lastOutcome);
-        // endRound(); // Removed to avoid double-calling getOutcome()
+        // endRound() is called by the parent method to avoid double-calling getOutcome()
     }
 
+
+    /**
+     * Handles the action when a player chooses to hit (take another card).
+     * <p>
+     * This method processes the player's request for another card by:
+     * <ol>
+     *   <li>Calling the game logic to add a card to the player's hand</li>
+     *   <li>Disabling the insurance button as insurance is only available on initial deal</li>
+     *   <li>Updating the UI to reflect the new game state</li>
+     *   <li>Handling various outcomes based on the player's status after hitting:</li>
+     * </ol>
+     * </p>
+     * <ul>
+     *   <li>If the player busts (goes over 21), the round ends and they lose</li>
+     *   <li>If the player reaches exactly 21, they automatically stand</li>
+     *   <li>If the player has 5 cards without busting (Five-card Charlie), they automatically stand</li>
+     *   <li>Otherwise, the game continues and the player can choose their next action</li>
+     * </ul>
+     *
+     * @see Game#playerHit()
+     * @see PlayerStatus
+     * @see #updateUI()
+     * @see #endRound()
+     */
     @FXML
     private void onHit() {
         PlayerStatus status = game.playerHit();
@@ -261,6 +359,31 @@ public class GameController {
         }
     }
 
+    /**
+     * Handles the action when a player chooses to stand (keep current hand).
+     * <p>
+     * This method processes the player's decision to stand by:
+     * <ol>
+     *   <li>Disabling all player action buttons (hit, stand, double) to prevent further actions</li>
+     *   <li>Checking the dealer's current hand and score to determine the next steps</li>
+     *   <li>Handling two different scenarios based on the dealer's hand:</li>
+     * </ol>
+     * </p>
+     * <ul>
+     *   <li><b>Dealer has 17+ (not soft 17):</b> The round ends immediately as the dealer
+     *       doesn't need to draw more cards. The game outcome is determined and displayed.</li>
+     *   <li><b>Dealer has less than 17 or soft 17:</b> The dealer needs to draw more cards,
+     *       so the reveal button is enabled for the player to control the dealer's card drawing
+     *       process.</li>
+     * </ul>
+     * <p>
+     * The method finally updates the UI to reflect the current game state.
+     * </p>
+     *
+     * @see Game#getOutcome()
+     * @see #updateUI()
+     * @see #endRound()
+     */
     @FXML
     private void onStand() {
         hitButton.setDisable(true);
@@ -286,9 +409,36 @@ public class GameController {
         updateUI();
     }
 
+
+
+    /**
+     * Handles the action when a player chooses to double down (double their bet and receive one more card).
+     * <p>
+     * This method processes the player's decision to double down by:
+     * <ol>
+     *   <li>Calling the game logic to process the double down action, which doubles the bet and deals one card</li>
+     *   <li>Setting the doubledDown flag to track this special bet state</li>
+     *   <li>Updating the UI to reflect the new game state</li>
+     *   <li>Handling the outcome based on the player's status after receiving the additional card:</li>
+     * </ol>
+     * </p>
+     * <ul>
+     *   <li>If the player busts (goes over 21), the round ends immediately and they lose their doubled bet</li>
+     *   <li>If the player doesn't bust, control is transferred to the dealer's turn via the reveal button</li>
+     * </ul>
+     * <p>
+     * Note: The ability to double down is prevented when the player doesn't have enough money,
+     * which is handled in the onDeal() method by disabling the doubleButton.
+     * </p>
+     *
+     * @see Game#doubleDown()
+     * @see PlayerStatus
+     * @see #updateUI()
+     * @see #endRound()
+     */
     @FXML
     private void onDoubleDown() {
-        PlayerStatus status = game.doubleDown();
+        PlayerStatus status = game.doubleDown();  // Call game logic to double bet and deal one card
         doubledDown = true; // Set double down state
         updateUI();
         System.out.println("player doubles down");
@@ -306,20 +456,50 @@ public class GameController {
         }
     }
 
+    /**
+     * Finalizes the current round of Blackjack and prepares for the next round.
+     * <p>
+     * This method handles all end-of-round tasks:
+     * <ol>
+     *   <li>Calculating and displaying the player's net gain or loss for the round</li>
+     *   <li>Displaying the appropriate message about the round's outcome</li>
+     *   <li>Resetting the game UI controls for the next round:</li>
+     *   <ul>
+     *     <li>Enabling the deal button to start a new round</li>
+     *     <li>Disabling gameplay buttons (hit, stand, double, reveal)</li>
+     *     <li>Enabling the bet change button to allow adjusting bets</li>
+     *   </ul>
+     *   <li>Displaying insurance results if applicable</li>
+     *   <li>Updating all UI elements to reflect the final game state</li>
+     * </ol>
+     * </p>
+     * <p>
+     * The method formats the net change display with appropriate symbols (+ or -)
+     * to clearly indicate gains or losses to the player.
+     * </p>
+     *
+     * @see Game#getPlayer()
+     * @see Player#getLastNetChange()
+     * @see Player#getLastInsuranceChange()
+     * @see #updateUI()
+     */
     private void endRound(){
+        // Calculate and format net change display with appropriate +/- symbol
         int net = game.getPlayer().getLastNetChange();
         String netChange = "Net Change: ";
         if (net > 0) {
-            netChange += "+$" + net;
+            netChange += "+$" + net;  // Add plus sign for gains
         } else if (net < 0) {
-            netChange += "-$" + Math.abs(net);
+            netChange += "-$" + Math.abs(net);  // Show negative amount as positive with minus sign
         } else {
-            netChange += "$0";
+            netChange += "$0";  // No change
         }
         System.out.println("Net change: " + netChange);
         payoutOrLossLabel.setText(netChange);
         System.out.println(lastOutcome);
         messageLabel.setText(lastOutcome);
+
+        // Reset UI controls for next round
         dealButton.setDisable(false);
         hitButton.setDisable(true);
         standButton.setDisable(true);
@@ -347,29 +527,29 @@ public class GameController {
      * the application using text-based commands. The popup allows the user to input commands, which
      * are then processed, providing feedback or executing specific actions based on the input.
      * This feature is primarily intended for advanced management or debugging purposes.
-     *<p></p>
+     *<p>
      * The popup includes the following features:
-     * - A customizable dialog box for entering commands.
-     * - Styled UI components to enhance the appearance of the dialog.
-     * - A poker chip icon replacing the default dialog question mark.
-     * - A central positioning relative to the main application window.
-     * - Continuous input prompts, where the user can execute commands or exit the console.
-     *<p></p>
+     * <ul>
+     *  <li>A customizable dialog box for entering commands.</li>
+     *  <li>Styled UI components to enhance the appearance of the dialog.</li>
+     *  <li>A poker chip icon replacing the default dialog question mark. </li>
+     *  <li>A central positioning relative to the main application window. </li>
+     *  <li>Continuous input prompts, where the user can execute commands or exit the console. </li>
+     *  </ul>
+     * </p>
      * Commands can include but are not limited to actions such as "exit" to close the console,
      * or additional commands processed by `handleConsoleCommand` for managing the game or application state.
-     *<p></p>
+
      * Customization includes:
-     * - Styling via an external stylesheet.
-     * - A custom application icon for consistent branding.
-     * - Re-centering of the dialog whenever content changes.
-     *<p>
-     *</p>
+     * <ol>
+     * <li>Styling via an external stylesheet.</li>
+     * <li>A custom application icon for consistent branding.</li>
+     * <li>Re-centering of the dialog whenever content changes.</li>
+     * </ol>
+     *
      * The process will terminate if the user chooses to exit or closes the popup.
      *
-     *
      * @see #handleConsoleCommand(String command)
-     *
-     *
      */
     @FXML
     private void showCasinoManagerPopup(){
@@ -443,6 +623,13 @@ public class GameController {
         loggedIn = false; // Reset login state when console is closed
     }
 
+    /**
+     * Authenticates the user by validating the provided password.
+     * The authentication checks if the input password matches the hardcoded password.
+     *
+     * @param password The input password entered by the user for authentication.
+     * @return true if the password matches the hardcoded value, false otherwise.
+     */
     private boolean login(String password){
         return "casino123".equals(password); // Simple hardcoded password for demo purposes
     }
@@ -679,7 +866,4 @@ public class GameController {
     }
 
     // todo: if time permits, implement splitting
-    // todo: if time permits, implement surrender
-    // todo: fix reveal dealer button such that if win on two cards, does not have to press it to finish round
-    // todo: show when deck is being reshuffled
 }
