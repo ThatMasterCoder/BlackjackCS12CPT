@@ -15,10 +15,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class GameController {
-
-
-
-
+    
     // <editor-fold desc="FXML Components, such as buttons, images, labels etc.">
     @FXML private ImageView table;
     @FXML private Label messageLabel;
