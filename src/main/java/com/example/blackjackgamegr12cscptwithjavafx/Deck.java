@@ -90,7 +90,7 @@ public class Deck {
      * Retrieves the current deck of cards.
      * @return An {@code ArrayList<Card>} containing the cards in the deck.
      */
-    public ArrayList<Card> getDeck(){
+    public ArrayList<Card> getDeckArrayList(){
         return cards;
     }
 

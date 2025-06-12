@@ -19,7 +19,7 @@ public class GameController {
 
 
 
-    // <editor-fold desc="FXML Components">
+    // <editor-fold desc="FXML Components, such as buttons, images, labels etc.">
     @FXML private ImageView table;
     @FXML private Label messageLabel;
     @FXML private Button revealDealerButton;
@@ -38,6 +38,7 @@ public class GameController {
     @FXML private Label insuranceLabel;
     @FXML private Label payoutOrLossLabel;
     @FXML private Label insuranceResultLabel;
+    @FXML private Button casinoManagerButton;
     // </editor-fold>
 
     // Constants and variables
@@ -46,6 +47,7 @@ public class GameController {
     private boolean doubledDown;
     private Game game;
     private String lastOutcome = "";
+    private boolean loggedIn; // for casino manager login state
 
     @FXML
     public void initialize() {
@@ -54,6 +56,7 @@ public class GameController {
         game.getDealer().resetHand();
         betAmount = DEFAULT_BET;
         doubledDown = false;
+        loggedIn = false;
 
         // Assign CSS classes for gold color
         moneyLabel.getStyleClass().add("money-label");
@@ -64,18 +67,6 @@ public class GameController {
         table.setImage(background);
 
         updateUI();
-
-
-
-        /*        For testing purposes, add some cards to the deck to test insurance
-        game.getDeck().addCard(new FaceCard("J", new Suit(Suit.Club)));
-        game.getDeck().addCard(new Card(2, "2", new Suit(Suit.Heart)));
-        game.getDeck().addCard(new Card(10, "10", new Suit(Suit.Spade)));
-        game.getDeck().addCard(new Ace(new Suit(Suit.Club)));
-        game.getDeck().addCard(new Card(2, "2", new Suit(Suit.Diamond)));
-
-         */
-
 
 
     }
@@ -142,6 +133,7 @@ public class GameController {
             standButton.setDisable(false);
             getInsuranceButton.setDisable(true);
             changeBetButton.setDisable(true);
+            casinoManagerButton.setDisable(false); // allow casino manager to open console
             insuranceResultLabel.setText(""); // Clear insurance result label
 
             doubleButton.setDisable(game.getPlayer().getMoney() < betAmount);
@@ -162,7 +154,11 @@ public class GameController {
 
             }
         } else {
-            messageLabel.setText("Not enough money to bet! Contact the casino manager.");
+            if (game.getPlayer().getMoney() < 50) {
+                messageLabel.setText("Not enough money to start a new round! Contact the casino manager.");
+            } else if (game.getPlayer().getMoney() < betAmount) {
+                messageLabel.setText("Not enough money to bet $" + betAmount + "! Please change your bet amount.");
+            }
             System.out.println("Broke, cant bet amount");
         }
     }
@@ -280,6 +276,256 @@ public class GameController {
         updateUI();
     }
 
+    /**
+     * Displays the Casino Manager Popup and provides a console-like interface for interacting with
+     * the application using text-based commands. The popup allows the user to input commands, which
+     * are then processed, providing feedback or executing specific actions based on the input.
+     * This feature is primarily intended for advanced management or debugging purposes.
+     *<p></p>
+     * The popup includes the following features:
+     * - A customizable dialog box for entering commands.
+     * - Styled UI components to enhance the appearance of the dialog.
+     * - A poker chip icon replacing the default dialog question mark.
+     * - A central positioning relative to the main application window.
+     * - Continuous input prompts, where the user can execute commands or exit the console.
+     *<p></p>
+     * Commands can include but are not limited to actions such as "exit" to close the console,
+     * or additional commands processed by `handleConsoleCommand` for managing the game or application state.
+     *<p></p>
+     * Customization includes:
+     * - Styling via an external stylesheet.
+     * - A custom application icon for consistent branding.
+     * - Re-centering of the dialog whenever content changes.
+     *<p>
+     *</p>
+     * The process will terminate if the user chooses to exit or closes the popup.
+     *
+     *
+     * @see #handleConsoleCommand(String command)
+     *
+     *
+     */
+    @FXML
+    private void showCasinoManagerPopup(){
+
+        System.out.println("button pressed, showing console dialog");
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Console Casino Manager");
+        dialog.setHeaderText("Enter Console Command: ");
+        dialog.setContentText(">>> ");
+        /* change the icon in the middle */
+        ImageView icon = new ImageView();
+
+        icon.setFitWidth(80);  // adjust size as needed
+        icon.setFitHeight(40);
+        dialog.setGraphic(icon);
+
+
+        // make the background of the dialog box look nice with a background and font and stuff
+        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/styles.css")).toExternalForm());
+        // Apply the console-log style class
+        dialog.getDialogPane().getStyleClass().add("console-log");
+        dialog.getEditor().getStyleClass().add("console-log");
+
+        /* fix the ugly question mark icon and replace it with my own poker chip icon
+        basically I need to make a window OWNER after I initialize but before I show
+         */
+
+        Window owner = messageLabel.getScene().getWindow();
+        dialog.initOwner(owner);
+
+        // setting the custom icon
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Objects.requireNonNull( // would rather NullPointerException than silent fail...
+                getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")
+        ).toExternalForm()));
+
+        // Center the dialog on screen
+        stage.setOnShown(e -> {
+            stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
+            stage.setY((owner.getY() + owner.getHeight() / 2) - stage.getHeight() / 2);
+        });
+
+        while (true) {
+            String prompt = "";
+            var result = dialog.showAndWait();
+            if (result.isPresent()) {
+                String input = result.get();
+                if (input.equalsIgnoreCase("exit")) {
+                    System.out.println("Exiting console...");
+                    dialog.close();
+                    break;
+                } else if (!input.trim().isEmpty()) {
+                    prompt = handleConsoleCommand(input.trim());
+                } else {
+                    messageLabel.setText("No command entered.");
+                }
+                dialog.getEditor().clear();
+            } else {
+                // User clicked Cancel or closed the dialog
+                System.out.println("Dialog closed by user.");
+                dialog.close();
+                break;
+            }
+            dialog.setHeaderText("Casino Manager Console\n" + prompt);
+
+            // Re-center the dialog after content changes
+            stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
+            stage.setY((owner.getY() + owner.getHeight() / 2) - stage.getHeight() / 2);
+        }
+    }
+
+    private boolean login(String password){
+        return "casino123".equals(password); // Simple hardcoded password for demo purposes
+    }
+
+    /**
+     * Handles console commands received as input and performs the corresponding actions or operations
+     * based on the command. Commands include actions such as logging in, logging out, managing game states,
+     * adjusting the player's money, reshuffling the deck, and more. For certain commands, interaction with
+     * the game's state and UI is required.
+     *
+     * @param command The console command input as a string. This should include the command type and
+     *                any optional arguments separated by spaces. Examples of commands include:
+     *                "login <password>", "setmoney <amount>", "addmoney <amount>", "reset", "logout", and "help".
+     * @return A string message providing feedback about the operation or any relevant instructions.
+     *         Examples include success messages like "Logged in as Casino Manager.", error messages
+     *         such as "Invalid Login Credentials. Please try again.", or usage information such as
+     *         "Usage: addmoney <amount>".
+     */
+    private String handleConsoleCommand(String command) {
+        // Handle the console command here
+        // For now, just print it to the console
+        System.out.println("Console Command: " + command);
+
+        String[] parts = command.split(" ");
+        // You can implement specific commands here, e.g.:
+        if (!command.strip().equals("help") && !loggedIn){
+
+            if (parts[0].equalsIgnoreCase("login")){
+                // Simple login check, in a real application you would check against a database or secure storage
+                if (parts.length < 2) {
+                    return "Please provide a password to log in. Usage: login <password>";
+                }
+
+                if (login(command.substring(parts[0].length() + 1).trim())) {
+                    loggedIn = true;
+                    System.out.println("logged in as Casino Manager");
+                    return "Logged in as Casino Manager.";
+                } else {
+                    return "Invalid Login Credentials. Please try again.";
+                }
+            } else {
+
+                System.out.println("Not logged in, need to log in first to run command");
+                return "Please log in first using 'login <password>'.";
+            }
+        }
+
+        switch (parts[0].toLowerCase()){
+            case "logout":
+                loggedIn = false;
+                return "Logged out from Casino Manager.";
+            case "reset":
+                initialize();
+
+                // cause on reset the logged in state is reset to false; we dont want to log out yet
+                loggedIn = true;
+                return "Game has been reset to initial state.";
+            case "addmoney":
+                if (parts.length > 1) {
+                    try {
+                        int moneyToAdd = Integer.parseInt(parts[1]);
+                        game.getPlayer().addMoney(moneyToAdd);
+                        String message = "Added $" + moneyToAdd + " to player's money.";
+                        System.out.println(message);
+                        updateUI();
+                        return message;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid money amount. Please enter a valid number.");
+                        return ("Invalid money amount. Please enter a valid number.");
+                    }
+                } else {
+                    System.out.println("Usage: addmoney <amount>");
+                    return ("Usage: addmoney <amount>");
+                }
+            case "setmoney":
+                if (parts.length > 1) {
+                    try {
+                        int newMoney = Integer.parseInt(parts[1]);
+                        game.getPlayer().setMoney(newMoney);
+                        String message = "Money set to $" + newMoney;
+                        updateUI();
+                        System.out.println(message);
+                        return message;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid money amount. Please enter a valid number.");
+                        return ("Invalid money amount. Please enter a valid number.");
+                    }
+                } else {
+                    System.out.println("Usage: setmoney <amount>");
+                    return ("Usage: setmoney <amount>");
+                }
+            case "reshuffle":
+                game.getDeck().generateDeck();
+                String message = "Deck reshuffled.";
+                updateUI();
+                System.out.println(message);
+                return message;
+
+            case "getcards":
+                int cardsLeft = game.getDeck().getDeckArrayList().size();
+                String cardsMessage = "Cards left in the deck: " + cardsLeft;
+                System.out.println(cardsMessage);
+                return cardsMessage;
+            case "help":
+                String helpText = """
+                        Available commands:
+                        exit - Exits the console. (WARNING: DOES NOT LOG OUT)
+                        reset - Resets the game to initial state.
+                        setmoney <amount> - Sets the player's money to the specified amount.
+                        addmoney <amount> - Adds the specified amount to the player's money.
+                        getcards - Displays number of cards left in the deck.
+                        reshuffle - Reshuffles the deck of cards.
+                        login <password> - Logs in as Casino Manager.
+                        logout - Logs out from Casino Manager.
+                        help - Shows this help message.""";
+
+                javafx.scene.control.Dialog<Void> helpDialog = new javafx.scene.control.Dialog<>();
+                helpDialog.setTitle("Help");
+                helpDialog.setHeaderText("Console Commands Help");
+
+                javafx.scene.control.TextArea helpArea = new javafx.scene.control.TextArea(helpText);
+                helpArea.setEditable(false);
+                helpArea.setWrapText(true);
+                helpArea.setPrefWidth(600);
+                helpArea.setPrefHeight(300);
+                helpArea.getStyleClass().add("console-log");
+
+                javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(helpArea);
+                content.setPrefSize(600, 300);
+                helpDialog.getDialogPane().setContent(content);
+
+                // Apply styles
+                helpDialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/styles.css")).toExternalForm());
+                helpDialog.getDialogPane().getStyleClass().add("console-log");
+
+                // Set custom icon
+                Stage helpStage = (Stage) helpDialog.getDialogPane().getScene().getWindow();
+                helpStage.getIcons().add(new Image(Objects.requireNonNull(
+                        getClass().getResource("/com/example/blackjackgamegr12cscptwithjavafx/images/casino-chip.png")
+                ).toExternalForm()));
+
+                helpDialog.getDialogPane().getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
+                helpDialog.showAndWait();
+                break;
+            default:
+                return ("Invalid command. Please enter a valid command.");
+        }
+
+        return ""; // Return empty string if no specific message is needed
+    }
+
     @FXML
     private void onRevealDealerCard() {
         Hand dealerHand  = game.getDealer().getHand();
@@ -297,31 +543,33 @@ public class GameController {
         }
     }
     private void updateUI() {
-        // Clear cards
+        // Clear previous cards
         playerCards.getChildren().clear();
         dealerCards.getChildren().clear();
 
-        // Show player cards
+        // Display player's cards
         for (Card card : game.getPlayer().getHand().getCards()) {
-            Label cardLabel = new Label(card.toString());
-            String color = (card.getSuit().isRed()) ? "red" : "black";
-            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white; -fx-text-fill: " + color + ";");
-            playerCards.getChildren().add(cardLabel);
+            ImageView cardImageView = new ImageView(card.getCardImage());
+            cardImageView.setFitHeight(110); // Reduced from 150 to 110 (approximately 3/4 size)
+            cardImageView.setFitWidth(75);   // Reduced from 100 to 75 (approximately 3/4 size)
+            cardImageView.setPreserveRatio(true);
+            playerCards.getChildren().add(cardImageView);
         }
 
-        // Show dealer cards - handle empty hand case... just in case :)
+        // Display dealer's cards
         boolean dealerRevealed = !(dealButton.isDisabled() && revealDealerButton.isDisabled()) || game.getPlayer().getHand().isBust();
         ArrayList<Card> dealerCardsList = game.getDealer().getHand().getCards();
 
         for (int i = 0; i < dealerCardsList.size(); i++) {
             Card card = dealerCardsList.get(i);
             boolean showCard = dealerRevealed || i == 0; // Show first card always, others only when revealed
-            Label cardLabel = new Label(showCard ? card.toString() : "[Hidden]");
-            String color = (card.getSuit().toString().equals("Heart") || card.getSuit().toString().equals("Diamond")) ? "red" : "black";
 
-            // yay ternary operators!
-            cardLabel.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-background-color: white;-fx-text-fill: " + (showCard ? color : "darkblue") + ";" + (showCard ? "" : "-fx-font-weight: bold;"));
-            dealerCards.getChildren().add(cardLabel);
+            ImageView cardImageView = new ImageView(showCard ? card.getCardImage() : Card.getCardBackImage());
+            cardImageView.setFitHeight(110); // Reduced from 150 to 110 (approximately 3/4 size)
+            cardImageView.setFitWidth(75);   // Reduced from 100 to 75 (approximately 3/4 size)
+            cardImageView.setPreserveRatio(true);
+
+            dealerCards.getChildren().add(cardImageView);
         }
 
         // Update score labels
@@ -331,7 +579,6 @@ public class GameController {
             playerScoreText += " (Soft)";
         }
         playerScoreLabel.setText(playerScoreText);
-
 
         String dealerScoreText;
         if (dealerCardsList.isEmpty()) {
@@ -362,7 +609,8 @@ public class GameController {
         insuranceLabel.setText("Insurance: " + (game.getPlayer().hasInsurance() ? "Yes" : "No"));
     }
 
-    // todo: also, if time permits, change cards to images
     // todo: if time permits, implement splitting
-    // todo: add a console where i can implement custom commands (popup dialog with text input)
+    // todo: if time permits, implement surrender
+    // todo: fix reveal dealer button such that if win on two cards, does not have to press it to finish round
+    // todo: show when deck is being reshuffled
 }

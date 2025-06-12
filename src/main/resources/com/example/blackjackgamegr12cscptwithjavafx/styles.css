@@ -40,3 +40,30 @@ I hate css */
     -fx-font-weight: bold;
     -fx-text-fill: #FFD700; /* gold color */
 }
+
+.console-log {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
+
+.console-log .text-field {
+    -fx-control-inner-background: black;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #aaaaaa;
+}
+
+.console-log.dialog-pane, .dialog-pane.console-log {
+    -fx-background-color: black !important;
+}
+
+.console-log.dialog-pane .header-panel,
+.dialog-pane.console-log .header-panel {
+    -fx-background-color: black !important;
+}
+
+/* Make TextArea in console-log dialogs have black background and white text */
+.console-log .text-area, .console-log .text-area .content {
+    -fx-control-inner-background: black;
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
