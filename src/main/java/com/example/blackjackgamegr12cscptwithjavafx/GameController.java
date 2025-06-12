@@ -30,6 +30,7 @@ public class GameController {
     @FXML private Button standButton;
     @FXML private Button doubleButton;
     @FXML private Button getInsuranceButton;
+    @FXML private Button rejectInsuranceButton;
     @FXML private Label dealerScoreLabel;
     @FXML private Label playerScoreLabel;
     @FXML private Button changeBetButton;
@@ -67,6 +68,13 @@ public class GameController {
         table.setImage(background);
 
         updateUI();
+/*
+        game.getDeck().addCard(new FaceCard("K", new Suit(Suit.Club)));
+        game.getDeck().addCard(new Card(4, "4", new Suit(Suit.Heart)));
+        game.getDeck().addCard(new FaceCard("J",new Suit(Suit.Spade)));
+        game.getDeck().addCard(new Ace(new Suit(Suit.Spade)));
+        */
+
 
 
     }
@@ -124,7 +132,8 @@ public class GameController {
 
     @FXML
     private void onDeal() {
-        if (game.startNewRound(betAmount)){
+        String playResult = game.startNewRound(betAmount);
+        if (playResult.equals("play")){ // no issues
             System.out.println("New Round");
 
             messageLabel.setText("Welcome to Blackjack! Use the buttons to play.");
@@ -144,16 +153,26 @@ public class GameController {
 
             if (game.getDealer().showsAce()){
                 messageLabel.setText("Insurance pays 2 to 1. Would you like insurance?");
+                hitButton.setDisable(true);
+                standButton.setDisable(true);
+                doubleButton.setDisable(true);
                 getInsuranceButton.setDisable(false);
+                rejectInsuranceButton.setDisable(false);
+            } else if (game.getDealer().hasBlackjack()){ // dealer no ace, but has blackjack
+                standButton.fire();
+            } else {
+                messageLabel.setText("Hit or Stand?");
             }
 
             if (game.getPlayer().getHand().isBlackjack()) {
                 messageLabel.setText("Blackjack Won!");
-                handleBlackjack();
+                handlePlayerBlackjack();
                 endRound(); // Only call endRound() here, not in handleBlackjack()
-
             }
-        } else {
+        } else if (playResult.equals("Deck was low on cards, reshuffled.")) {
+            messageLabel.setText("Deck was low on cards, reshuffled. Please try again.");
+            System.out.println("Deck was low on cards, reshuffled.");
+        } else { // playResult is "Cannot bet, insufficient funds"
             if (game.getPlayer().getMoney() < 50) {
                 messageLabel.setText("Not enough money to start a new round! Contact the casino manager.");
             } else if (game.getPlayer().getMoney() < betAmount) {
@@ -167,15 +186,50 @@ public class GameController {
     private void onInsurance(){
         boolean insuranceBought = game.buyInsurance();
         getInsuranceButton.setDisable(true); // cant buy insurance again...
+        rejectInsuranceButton.setDisable(true);
         if (insuranceBought){
             messageLabel.setText("Insurance bought successfully!");
+            if (game.getDealer().hasBlackjack()){
+                // Dealer has blackjack, end the round immediately
+                lastOutcome = game.getOutcome(); // Get the outcome which handles insurance payout
+                revealDealerButton.setDisable(true); // No need to press reveal
+                endRound(); // End the round directly
+            } else {
+                // Continue the game if dealer doesn't have blackjack
+                hitButton.setDisable(false);
+                standButton.setDisable(false);
+                doubleButton.setDisable(game.getPlayer().getMoney() < betAmount);
+                messageLabel.setText("Insurance bought. Dealer doesn't have Blackjack.");
+            }
         } else {
             messageLabel.setText("Not enough money to buy insurance!");
         }
         updateUI();
     }
 
-    private void handleBlackjack() {
+    @FXML
+    private void onRejectInsurance() {
+        getInsuranceButton.setDisable(true); // cant buy insurance again...
+        rejectInsuranceButton.setDisable(true);
+
+        if (game.getDealer().hasBlackjack()){
+            // Dealer has blackjack, end the round immediately
+            lastOutcome = game.getOutcome(); // Get the outcome which handles insurance payout
+            revealDealerButton.setDisable(true); // No need to press reveal
+            messageLabel.setText("Insurance Rejected. Dealer has Blackjack!");
+            endRound(); // End the round directly
+        } else {
+            // Dealer doesn't have blackjack, continue playing
+            hitButton.setDisable(false);
+            standButton.setDisable(false);
+            doubleButton.setDisable(game.getPlayer().getMoney() < betAmount);
+            messageLabel.setText("Insurance rejected. Dealer does not have Blackjack.");
+        }
+
+        updateUI();
+    }
+
+    private void handlePlayerBlackjack() {
         lastOutcome = game.getOutcome();
         messageLabel.setText(lastOutcome);
         // endRound(); // Removed to avoid double-calling getOutcome()
@@ -212,11 +266,26 @@ public class GameController {
 
     @FXML
     private void onStand() {
-        messageLabel.setText("Dealer's turn... click to reveal cards.");
         hitButton.setDisable(true);
         standButton.setDisable(true);
         doubleButton.setDisable(true);
-        revealDealerButton.setDisable(false);
+
+        Hand dealerHand = game.getDealer().getHand();
+        int dealerScore = dealerHand.getScore();
+
+        // Check if dealer already has 17+ and doesn't need to draw more cards
+        if (dealerScore >= 17 && !(dealerScore == 17 && dealerHand.hasSoftAces())) {
+            // Dealer already has 17+ (not a soft 17), no need to draw more cards
+            lastOutcome = game.getOutcome();
+            messageLabel.setText(lastOutcome);
+            revealDealerButton.setDisable(true); // No need for player to press reveal
+            endRound();
+        } else {
+            // Dealer needs to draw more cards
+            messageLabel.setText("Dealer's turn... click to reveal cards.");
+            revealDealerButton.setDisable(false);
+        }
+
         updateUI();
     }
 
@@ -544,6 +613,7 @@ public class GameController {
             endRound();
         }
     }
+
     private void updateUI() {
         // Clear previous cards
         playerCards.getChildren().clear();
@@ -586,7 +656,7 @@ public class GameController {
         if (dealerCardsList.isEmpty()) {
             dealerScoreText = "Dealer: 0";
         } else if ((dealButton.isDisabled() && revealDealerButton.isDisabled()) && !game.getPlayer().getHand().isBust()) {
-            // Before reveal, only show first card's value
+            // Before reveal, only show the first card's value
             System.out.println("Hide cards");
             int visibleValue = dealerCardsList.get(0).getCardValue();
             dealerScoreText = "Dealer: " + visibleValue + " + ?";

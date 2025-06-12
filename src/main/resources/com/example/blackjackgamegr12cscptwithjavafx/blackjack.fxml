@@ -63,7 +63,8 @@
                 <Button fx:id="hitButton" text="Hit" onAction="#onHit" disable="true" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
                 <Button fx:id="standButton" text="Stand" onAction="#onStand" disable="true" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
                 <Button fx:id="doubleButton" text="Double Down" onAction="#onDoubleDown" disable="true" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Button fx:id="getInsuranceButton" text = "Get Insurance" onAction="#onInsurance" disable="true" style="-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="getInsuranceButton" text = "Get Insurance" onAction="#onInsurance" disable="true" style="-fx-background-color: #34eb55; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="rejectInsuranceButton" text="Reject Insurance" onAction="#onRejectInsurance" disable="true" style="-fx-background-color: #eb3434; -fx-text-fill: white; -fx-font-weight: bold;"/>
                 <Button fx:id="changeBetButton" text="Custom Bet" onAction="#showBetPopup" style="-fx-background-color: #2d98fc; -fx-text-fill: white; -fx-font-weight: bold;"/>
             </HBox>
         </bottom>

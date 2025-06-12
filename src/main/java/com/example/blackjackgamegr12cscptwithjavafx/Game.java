@@ -32,9 +32,10 @@ public class Game {
      * @return {@code true} if the round was successfully started;
      *         {@code false} if the player does not have sufficient funds to place the bet.
      */
-    public boolean startNewRound(int bet){
+    public String startNewRound(int bet){
         if (deck.lowOnCards()){
             deck.generateDeck();
+            return "Deck was low on cards, reshuffled.";
         }
 
         player.resetHand();
@@ -42,7 +43,7 @@ public class Game {
 
         if (!player.bet(bet)){
             System.out.println("Cannot bet, insufficient funds");
-            return false;
+            return "Cannot bet, insufficient funds";
         }
 
 
@@ -50,7 +51,7 @@ public class Game {
         System.out.println("dealer got: " + dealer.getHand().addCard(deck.drawCard()));
         System.out.println("player got: " + player.getHand().addCard(deck.drawCard()));
         System.out.println("dealer got: " + dealer.getHand().addCard(deck.drawCard()));
-        return true;
+        return "play";
     }
 
     /**
