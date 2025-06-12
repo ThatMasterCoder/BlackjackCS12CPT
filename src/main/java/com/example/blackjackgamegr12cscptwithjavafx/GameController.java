@@ -373,6 +373,8 @@ public class GameController {
             stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
             stage.setY((owner.getY() + owner.getHeight() / 2) - stage.getHeight() / 2);
         }
+
+        loggedIn = false; // Reset login state when console is closed
     }
 
     private boolean login(String password){
@@ -481,7 +483,7 @@ public class GameController {
             case "help":
                 String helpText = """
                         Available commands:
-                        exit - Exits the console. (WARNING: DOES NOT LOG OUT)
+                        exit - Exits the console.
                         reset - Resets the game to initial state.
                         setmoney <amount> - Sets the player's money to the specified amount.
                         addmoney <amount> - Adds the specified amount to the player's money.
