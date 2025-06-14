@@ -729,7 +729,7 @@ public class GameController {
                 return message;
 
             case "getcards":
-                int cardsLeft = game.getDeck().getDeckArrayList().size();
+                int cardsLeft = game.getDeck().getDeckSize();
                 String cardsMessage = "Cards left in the deck: " + cardsLeft;
                 System.out.println(cardsMessage);
                 return cardsMessage;
@@ -818,6 +818,22 @@ public class GameController {
         }
     }
 
+    /**
+     * Updates the user interface to reflect the current state of the game.
+     * <p>
+     * This method performs the following operations:
+     * <ol>
+     *   <li>Clears previous card displays for both player and dealer</li>
+     *   <li>Renders the player's current hand of cards with appropriate sizing</li>
+     *   <li>Renders the dealer's cards (face up or down based on game state)</li>
+     *   <li>Updates score displays and other UI elements to match game state</li>
+     * </ol>
+     * </p>
+     * <p>
+     * The dealer's first card remains face down until the appropriate game state
+     * (when player stands, busts, or the game round ends).
+     * </p>
+     */
     private void updateUI() {
         // Clear previous cards
         playerCards.getChildren().clear();
@@ -885,5 +901,4 @@ public class GameController {
         insuranceLabel.setText("Insurance: " + (game.getPlayer().hasInsurance() ? "Yes" : "No"));
     }
 
-    // todo: if time permits, implement splitting
 }
