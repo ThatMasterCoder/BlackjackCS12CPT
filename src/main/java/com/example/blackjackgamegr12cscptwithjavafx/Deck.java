@@ -72,7 +72,7 @@ public class Deck {
      * It is intended for testing purposes only.
      */
     @Deprecated
-    public void addCard(Card card){
+    protected void addCard(Card card){ // removed public access modifier to prevent misuse
         System.out.println("Add card is active");
         cards.add(Objects.requireNonNull(card, "Card cannot be null!!"));
     }
@@ -87,8 +87,9 @@ public class Deck {
     }
 
     /**
-     * Retrieves the current deck of cards.
-     * @return An {@code ArrayList<Card>} containing the cards in the deck.
+     * Retrieves the current number of cards in the deck.
+     *
+     * @return The size of the deck as an integer. Represents the number of cards currently in the deck.
      */
     public int getDeckSize() {
         return cards.size();
