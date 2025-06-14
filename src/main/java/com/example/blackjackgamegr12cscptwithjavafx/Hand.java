@@ -66,6 +66,7 @@ public class Hand {
         cards.clear();
         aces = 0;
     }
+    
     /**
      * Calculates the total value of the hand and the number of soft aces (aces counted as 11).
      * A soft ace is an ace that can be counted as 11 without busting the hand.
