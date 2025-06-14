@@ -49,7 +49,7 @@ public class GameController {
 
     /**
      * Initializes the game controller, setting up the initial game state, UI components,
-     * and event handlers. This method is called automatically by JavaFX when the FXML file
+     * and event handlers. JavaFX calls this method automatically when the FXML file
      * is loaded.
      */
     @FXML
