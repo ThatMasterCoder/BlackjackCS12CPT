@@ -557,7 +557,7 @@ public class GameController {
         System.out.println("button pressed, showing console dialog");
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Console Casino Manager");
-        dialog.setHeaderText("Enter Console Command: ");
+        dialog.setHeaderText("Casino Manager Console");
         dialog.setContentText(">>> ");
         /* change the icon in the middle */
         ImageView icon = new ImageView();
@@ -604,7 +604,8 @@ public class GameController {
                 } else if (!input.trim().isEmpty()) {
                     prompt = handleConsoleCommand(input.trim());
                 } else {
-                    messageLabel.setText("No command entered.");
+                    prompt = "No Command entered.";
+                    System.out.println(prompt);
                 }
                 dialog.getEditor().clear();
             } else {
@@ -613,7 +614,7 @@ public class GameController {
                 dialog.close();
                 break;
             }
-            dialog.setHeaderText("Casino Manager Console\n" + prompt);
+            dialog.setHeaderText("Casino Manager Console:\n" + prompt);
 
             // Re-center the dialog after content changes
             stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
@@ -678,6 +679,9 @@ public class GameController {
         }
 
         switch (parts[0].toLowerCase()){
+            case "login":
+                System.out.println("Already logged in, no need to log in again");
+                return "Already logged in.";
             case "logout":
                 loggedIn = false;
                 return "Logged out from Casino Manager.";
@@ -775,7 +779,7 @@ public class GameController {
                 helpDialog.showAndWait();
                 break;
             default:
-                return ("Invalid command. Please enter a valid command.");
+                return ("Invalid command. Please enter a valid command, or type 'help' for a list of commands.");
         }
 
         return ""; // Return empty string if no specific message is needed
