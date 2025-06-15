@@ -234,7 +234,7 @@ public class GameController {
                 messageLabel.setText("Insurance bought. Dealer doesn't have Blackjack.");
             }
         } else {
-            messageLabel.setText("Not enough money to buy insurance!");
+            messageLabel.setText("Not enough money to buy insurance! Please reject insurance.");
         }
         updateUI();
     }
