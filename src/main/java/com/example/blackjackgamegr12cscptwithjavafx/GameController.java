@@ -593,7 +593,7 @@ public class GameController {
         });
 
         while (true) {
-            String prompt = "";
+            String prompt;
             var result = dialog.showAndWait();
             if (result.isPresent()) {
                 String input = result.get();
@@ -737,6 +737,26 @@ public class GameController {
                 String cardsMessage = "Cards left in the deck: " + cardsLeft;
                 System.out.println(cardsMessage);
                 return cardsMessage;
+
+            case "setcards":
+                if (parts.length > 1) {
+                    try {
+                        int newCards = Integer.parseInt(parts[1]);
+                        game.getDeck().setDeckSize(newCards);
+                        String setCardsMessage = "Deck size set to " + newCards + " cards.";
+                        System.out.println(setCardsMessage);
+                        return setCardsMessage;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid number of cards. Please enter a valid number.");
+                        return ("Invalid number of cards. Please enter a valid number.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Invalid number of cards. Please enter a positive number.");
+                        return ("Invalid number of cards. Please enter a positive number.");
+                    }
+                } else {
+                    System.out.println("Usage: setcards <amount>");
+                    return ("Usage: setcards <amount>");
+                }
             case "help":
                 String helpText = """
                         Available commands:
@@ -744,6 +764,7 @@ public class GameController {
                         reset - Resets the game to initial state.
                         setmoney <amount> - Sets the player's money to the specified amount.
                         addmoney <amount> - Adds the specified amount to the player's money.
+                        setcards <amount> - Sets the number of cards in the deck to the specified amount.
                         getcards - Displays number of cards left in the deck.
                         reshuffle - Reshuffles the deck of cards.
                         login <password> - Logs in as Casino Manager.

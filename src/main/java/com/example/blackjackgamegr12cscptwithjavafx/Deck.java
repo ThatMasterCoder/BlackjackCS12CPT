@@ -95,6 +95,13 @@ public class Deck {
         return cards.size();
     }
 
+    public void setDeckSize(int size) {
+        if (size < 0) {
+            throw new IllegalArgumentException("Deck size cannot be negative.");
+        }
+        cards.subList(size, cards.size()).clear();
+    }
+
     /**
      * Draws a card from the deck.
      * <p>
